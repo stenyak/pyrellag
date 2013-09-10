@@ -170,34 +170,32 @@ class Gallery:
                     );
                 </script>""")
             f.write("</body></html>")
-        def write_body(f):
-            def write_subgalleries(f):
-                f.write("<div id='subgalleries'>")
-                paths = self.path.split(os.sep)
-                for i in range(0, len(paths)-1):
-                    level = len(paths) - 1 - i
-                    path = ""
-                    for j in range(0, level):
-                        path = os.path.join(path, os.pardir)
-                    f.write("<a class='hlable' href='%s'>%s</a> / " %(os.path.join(path, self.html_filename), paths[i]))
-                f.write("%s (%s):" %(paths[-1], len(self.images)))
-                if len(self.galleries) > 0:
-                    f.write("\n<ul style='margin: 0px'>")
-                    for g in self.galleries:
-                        f.write("\n<a class='subgallery' href='%s'><li class='hlable'>%s (%s)</li></a>" %(os.path.join(os.path.basename(os.path.normpath(g.path)), self.html_filename), os.path.basename(os.path.normpath(g.path)), len(g.images)))
-                    f.write("\n</ul>")
-                f.write("</div>")
-            def write_images(f):
-                f.write("\n<div id='Gallery' style='text-align:center;'>")
-                for i in self.images:
-                    f.write("\n<a href='%s'><img class='image' src='%s' alt='Filename: %s'/></a>\n" %(i, os.path.join(self.thumbs_dirname, i), i))
-                f.write("\n</div>")
-            write_subgalleries(f)
-            write_images(f)
+        def write_subgalleries(f):
+            f.write("\n<div id='subgalleries'>")
+            paths = self.path.split(os.sep)
+            for i in range(0, len(paths)-1):
+                level = len(paths) - 1 - i
+                path = ""
+                for j in range(0, level):
+                    path = os.path.join(path, os.pardir)
+                f.write("<a class='hlable' href='%s'>%s</a> / " %(os.path.join(path, self.html_filename), paths[i]))
+            f.write("%s (%s):" %(paths[-1], len(self.images)))
+            if len(self.galleries) > 0:
+                f.write("\n<ul style='margin: 0px'>")
+                for g in self.galleries:
+                    f.write("\n<a class='subgallery' href='%s'><li class='hlable'>%s (%s)</li></a>" %(os.path.join(os.path.basename(os.path.normpath(g.path)), self.html_filename), os.path.basename(os.path.normpath(g.path)), len(g.images)))
+                f.write("\n</ul>")
+            f.write("</div>")
+        def write_images(f):
+            f.write("\n<div id='Gallery' style='text-align:center;'>")
+            for i in self.images:
+                f.write("\n<a href='%s'><img class='image' src='%s' alt='Filename: %s'/></a>\n" %(i, os.path.join(self.thumbs_dirname, i), i))
+            f.write("\n</div>")
         html_path = os.path.join(self.path, self.html_filename)
         with open(html_path, "w") as f:
             write_header(f)
-            write_body(f)
+            write_subgalleries(f)
+            write_images(f)
             write_footer(f)
 
 
