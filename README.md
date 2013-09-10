@@ -8,9 +8,17 @@ Pyrellag is a very simple, low-overhead gallery viewer, suitable for huge collec
 
 For reference, it's able to scan from scratch a 7GB collection of photos/videos in under 2 minutes.
 
-
 This software is released under the GNU AFFERO GENERAL PUBLIC LICENSE. Please see `LICENSE` file for more information.
 
+Screenshots
+-----------
+
+Gallery view:
+![alt tag](https://raw.github.com/stenyak/pyrellag/master/gallery_view.png)
+
+
+Photo view:
+![alt tag](https://raw.github.com/stenyak/pyrellag/master/photo_view.png)
 
 Features
 --------
