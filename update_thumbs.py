@@ -4,7 +4,7 @@
 import os, re, sys, Image
 
 class Gallery:
-    image_exts = ["jpg", "jpeg"]
+    image_exts = ["jpg", "jpeg", "png"]
     thumbs_dirname = ".thumbs"
     html_filename = "index.htm"
     thumbs_size = 128,128
@@ -74,72 +74,126 @@ class Gallery:
         return result
     def update_html(self):
         def write_header(f):
-            f.write("<html><head><title>Gallery for %s</title></head><body>\n" %self.path)
-            f.write("<style media='screen' type='text/css'>")
-            f.write(".box{ width: 100px; height: 100px; border: solid 1px black; display: inline-block; }")
-            f.write("</style>")
+            pspath = [os.pardir] * len(self.path.split(os.sep)) + ["ps"]
+            ps = os.path.join(*pspath)
+            f.write("<html><head><title>Gallery for %s</title>\n" %self.path)
+            f.write('<link href="%s/photoswipe.css" type="text/css" rel="stylesheet" />' %ps)
+            f.write('<script type="text/javascript" src="%s/lib/klass.min.js"></script>' %ps)
+            f.write('<script type="text/javascript" src="%s/code.photoswipe-3.0.5.min.js"></script>' %ps)
+            f.write("""<style media="screen" type="text/css">
+                        #subgalleries {
+                           float: left;
+                           width: auto;
+
+                           padding-left: 5px;
+                           padding-right: 5px;
+
+                           border-radius: 10px;
+                           -webkit-border-radius: 10px;
+                           -moz-border-radius: 10px;
+
+                           background-color: grey;
+
+                            transition: background-color 0.5s linear;
+                           -moz-transition: background-color 0.5s linear;
+                           -webkit-transition: background-color 0.5s linear;
+                           -ms-transition: background-color 0.5s linear;
+                        }
+                        #subgalleries:hover {
+                           background-color: silver;
+                           padding-left: 5px;
+                           padding-right: 5px;
+                        }
+                        .hlable {
+                           border-radius: 5px;
+                           -webkit-border-radius: 5px;
+                           -moz-border-radius: 5px;
+
+                           background-color: transparent;
+
+                            transition: background-color 0.1s linear;
+                           -moz-transition: background-color 0.1s linear;
+                           -webkit-transition: background-color 0.1s linear;
+                           -ms-transition: background-color 0.1s linear;
+                        }
+                        .hlable:hover {
+                           background-color: white;
+                        }
+                        .image {
+                           padding: 5px;
+
+                           border-radius: 5px;
+                           -webkit-border-radius: 5px;
+                           -moz-border-radius: 5px;
+
+                           background-color: grey;
+
+                            transition: background-color 0.2s linear;
+                           -moz-transition: background-color 0.2s linear;
+                           -webkit-transition: background-color 0.2s linear;
+                           -ms-transition: background-color 0.2s linear;
+                        }
+                        .image:hover {
+                           background-color: white;
+                        }
+                        body {
+                            background-image: linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(28,28,28) 100%, rgb(18,18,18) 50%);
+                            background-image: -o-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(28,28,28) 100%, rgb(18,18,18) 50%);
+                            background-image: -moz-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(28,28,28) 100%, rgb(18,18,18) 50%);
+                            background-image: -webkit-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(28,28,28) 100%, rgb(18,18,18) 50%);
+                            background-image: -ms-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(28,28,28) 100%, rgb(18,18,18) 50%);
+
+                            background-image: -webkit-gradient(
+                                    linear,
+                                    left bottom,
+                                    right top,
+                                    color-stop(0.18, rgb(0,0,0)),
+                                    color-stop(1, rgb(28,28,28)),
+                                    color-stop(0.5, rgb(18,18,18))
+                            );
+                        }
+                        .subgallery {
+                                text-decoration: none;
+                        }
+            </style>""")
+            f.write("</head><body>\n")
         def write_footer(f):
-            f.write("""<script>document.onkeydown = checkKey;
-                window.curridx = 0;
-                updateImg();
-                function sanitizeIdx()
-                {
-                    if (window.curridx < 0) window.curridx = 0;
-                    if (window.curridx > %s-1) window.curridx = %s-1;
-                }
-                function checkKey(e)
-                {
-                    e = e || window.event;
-                    if (e.keyCode == '37') {
-                        window.curridx -= 1;
-                        updateImg();
-                    } else if (e.keyCode == '39') {
-                        window.curridx += 1;
-                        updateImg();
-                    }
-                }
-                function updateImg()
-                {
-                    sanitizeIdx();
-                    document.getElementById("fullimage").src = document.getElementById(window.curridx).alt;
-                    document.getElementById("current").innerHTML = window.curridx;
-                    window.nextImg = new Image();
-                    window.nextImg.src = document.getElementById(window.curridx+1).alt;
-                }</script>""" %(len(self.images), len(self.images)))
+            f.write("""
+                <script>
+                    document.addEventListener(
+                        'DOMContentLoaded',
+                        function()
+                        {
+                            var myPhotoSwipe = Code.PhotoSwipe.attach( window.document.querySelectorAll('#Gallery a'), { enableMouseWheel: true , enableKeyboard: true, imageScaleMethod: 'fitNoUpscale', loop: false } );
+                        },
+                        false
+                    );
+                </script>""")
             f.write("</body></html>")
         def write_body(f):
             def write_subgalleries(f):
-                f.write("<div style='float:left; background-color:beige; width:10%'>")
+                f.write("<div id='subgalleries'>")
                 paths = self.path.split(os.sep)
                 for i in range(0, len(paths)-1):
                     level = len(paths) - 1 - i
                     path = ""
                     for j in range(0, level):
                         path = os.path.join(path, os.pardir)
-                    f.write("<a href='%s'>%s</a> / " %(os.path.join(path, self.html_filename), paths[i]))
+                    f.write("<a class='hlable' href='%s'>%s</a> / " %(os.path.join(path, self.html_filename), paths[i]))
                 f.write("%s (%s):" %(paths[-1], len(self.images)))
-                f.write("<ul>")
-                for g in self.galleries:
-                    f.write("<li><a href='%s'>%s (%s)</a></li>\n" %(os.path.join(os.path.basename(os.path.normpath(g.path)), self.html_filename), os.path.basename(os.path.normpath(g.path)), len(g.images)))
-                f.write("</ul>")
-                f.write("<span id='current'/>")
+                if len(self.galleries) > 0:
+                    f.write("\n<ul style='margin: 0px'>")
+                    for g in self.galleries:
+                        f.write("\n<a class='subgallery' href='%s'><li class='hlable'>%s (%s)</li></a>" %(os.path.join(os.path.basename(os.path.normpath(g.path)), self.html_filename), os.path.basename(os.path.normpath(g.path)), len(g.images)))
+                    f.write("\n</ul>")
                 f.write("</div>")
             def write_images(f):
-                f.write("\n<div style='overflow-x: scroll; overflow-y:hidden; width:90%; height: 15%;'>")
-                f.write("<div style='background-color: azure; width: auto; white-space: nowrap'>")
-                idx = 0
+                f.write("\n<div id='Gallery' style='text-align:center;'>")
                 for i in self.images:
-                    f.write("<a onclick='window.curridx=%s; updateImg();'><img src='%s' id='%s' alt='%s'/></a>'\n" %(idx, os.path.join(self.thumbs_dirname, i), idx, i))
-                    idx += 1
-                f.write("</div>")
-                f.write("</div>")
+                    f.write("\n<a href='%s'><img class='image' src='%s' alt='Filename: %s'/></a>\n" %(i, os.path.join(self.thumbs_dirname, i), i))
+                f.write("\n</div>")
             write_subgalleries(f)
             write_images(f)
-            #outer
-            f.write("\n<div style='text-align:center; clear:both; width:100%; height:85%'>")
-            #inner
-            f.write("<img id='fullimage' style='max-width:100%; max-height:100%; height:auto; width:auto'/>")
-            f.write("</div>")
         html_path = os.path.join(self.path, self.html_filename)
         with open(html_path, "w") as f:
             write_header(f)
