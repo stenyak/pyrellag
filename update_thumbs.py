@@ -137,6 +137,8 @@ class Gallery:
                            background-color: white;
                         }
                         body {
+                            overflow-y: scroll;
+                            overflow-x: hidden;
                             background-image: linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(28,28,28) 100%, rgb(18,18,18) 50%);
                             background-image: -o-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(28,28,28) 100%, rgb(18,18,18) 50%);
                             background-image: -moz-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(28,28,28) 100%, rgb(18,18,18) 50%);
@@ -155,6 +157,9 @@ class Gallery:
                         .subgallery {
                                 text-decoration: none;
                         }
+                        #Gallery{
+                            clear:both;
+                        }
                         .logo {
                             width: auto;
                             float: right;
@@ -168,26 +173,26 @@ class Gallery:
                             -webkit-border-radius: 38px;
                             border-radius: 20px;
 
-                            -moz-box-shadow:10px 10px 5px #000000;
-                            -webkit-box-shadow:10px 10px 5px #000000;
-                            box-shadow:10px 10px 5px #000000;
+                            -moz-box-shadow:-10px 10px 5px #000000;
+                            -webkit-box-shadow:-10px 10px 5px #000000;
+                            box-shadow:-10px 10px 5px #000000;
 
                             transition:All 0.3s ease-in-out;
                             -webkit-transition:All 0.3s ease-in-out;
                             -moz-transition:All 0.3s ease-in-out;
                             -o-transition:All 0.3s ease-in-out;
-                            transform: rotate(25deg) scale(1) translate(10px);
-                            -webkit-transform: rotate(25deg) scale(1) translate(10px);
-                            -moz-transform: rotate(25deg) scale(1) translate(10px);
-                            -o-transform: rotate(25deg) scale(1) translate(10px);
-                            -ms-transform: rotate(25deg) scale(1) translate(10px);
+                            transform: rotate(25deg) scale(1) translate(10px, -15px);
+                            -webkit-transform: rotate(25deg) scale(1) translate(10px, -15px);
+                            -moz-transform: rotate(25deg) scale(1) translate(10px, -15px);
+                            -o-transform: rotate(25deg) scale(1) translate(10px, -15px);
+                            -ms-transform: rotate(25deg) scale(1) translate(10px, -15px);
                         }
                         .logo:hover{
-                            transform: rotate(5deg) scale(1.5) translate(0px);
-                            -webkit-transform: rotate(5deg) scale(1.5) translate(0px);
-                            -moz-transform: rotate(5deg) scale(1.5) translate(0px);
-                            -o-transform: rotate(5deg) scale(1.5) translate(0px);
-                            -ms-transform: rotate(5deg) scale(1.5) translate(0px);
+                            transform: rotate(5deg) scale(1.5) translate(-10px);
+                            -webkit-transform: rotate(5deg) scale(1.5) translate(-10px);
+                            -moz-transform: rotate(5deg) scale(1.5) translate(-10px);
+                            -o-transform: rotate(5deg) scale(1.5) translate(-10px);
+                            -ms-transform: rotate(5deg) scale(1.5) translate(-10px);
                         }
             </style>""")
             f.write("</head><body>\n")
