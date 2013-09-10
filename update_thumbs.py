@@ -155,6 +155,40 @@ class Gallery:
                         .subgallery {
                                 text-decoration: none;
                         }
+                        .logo {
+                            width: auto;
+                            float: right;
+                            padding: 5px;
+                            background-color: silver;
+                            text-align:center;
+                            text-shadow:5px 5px 10px #000000;
+
+                            border:solid 3px grey;
+                            -moz-border-radius: 38px;
+                            -webkit-border-radius: 38px;
+                            border-radius: 20px;
+
+                            -moz-box-shadow:10px 10px 5px #000000;
+                            -webkit-box-shadow:10px 10px 5px #000000;
+                            box-shadow:10px 10px 5px #000000;
+
+                            transition:All 0.3s ease-in-out;
+                            -webkit-transition:All 0.3s ease-in-out;
+                            -moz-transition:All 0.3s ease-in-out;
+                            -o-transition:All 0.3s ease-in-out;
+                            transform: rotate(25deg) scale(1) translate(10px);
+                            -webkit-transform: rotate(25deg) scale(1) translate(10px);
+                            -moz-transform: rotate(25deg) scale(1) translate(10px);
+                            -o-transform: rotate(25deg) scale(1) translate(10px);
+                            -ms-transform: rotate(25deg) scale(1) translate(10px);
+                        }
+                        .logo:hover{
+                            transform: rotate(5deg) scale(1.5) translate(0px);
+                            -webkit-transform: rotate(5deg) scale(1.5) translate(0px);
+                            -moz-transform: rotate(5deg) scale(1.5) translate(0px);
+                            -o-transform: rotate(5deg) scale(1.5) translate(0px);
+                            -ms-transform: rotate(5deg) scale(1.5) translate(0px);
+                        }
             </style>""")
             f.write("</head><body>\n")
         def write_footer(f):
@@ -170,6 +204,8 @@ class Gallery:
                     );
                 </script>""")
             f.write("</body></html>")
+        def write_logo(f):
+            f.write("\n<a clas='logo' href='https://github.com/stenyak/pyrellag'><div class='logo'>powered by<br/><b>Pyrellag!</b></div></a>")
         def write_subgalleries(f):
             f.write("\n<div id='subgalleries'>")
             paths = self.path.split(os.sep)
@@ -194,6 +230,7 @@ class Gallery:
         html_path = os.path.join(self.path, self.html_filename)
         with open(html_path, "w") as f:
             write_header(f)
+            write_logo(f)
             write_subgalleries(f)
             write_images(f)
             write_footer(f)
