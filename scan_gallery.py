@@ -5,6 +5,22 @@ import os, re, sys, Image, shutil, hashlib, PngImagePlugin
 
 class UnsupportedFormatError(Exception): pass
 
+class Color:
+    if sys.stdout.isatty():
+        MAGENTA = '\033[95m'
+        BLUE = '\033[94m'
+        GREEN = '\033[92m'
+        YELLOW = '\033[93m'
+        RED = '\033[91m'
+        RESET = '\033[0m'
+    else:
+        MAGENTA = ''
+        BLUE = ''
+        GREEN = ''
+        YELLOW = ''
+        RED = ''
+        RESET = ''
+
 class Stats:
     def __init__(self):
         self.files = 0
@@ -27,9 +43,9 @@ class Stats:
         result.failed_thumbs = self.failed_thumbs[:]
         return result
     def __repr__(self):
-        return self.__str__()
+        return "%s files, %s thumbs (%s generated, %s removed, %s failed)" %(self.files, self.thumbs, self.generated_thumbs, self.removed_thumbs, len(self.failed_thumbs))
     def __str__(self):
-        return "%s files,\t %s thumbs\t (%s generated,\t %s removed,\t %s failed)" %(self.files, self.thumbs, self.generated_thumbs, self.removed_thumbs, len(self.failed_thumbs))
+        return "%s files, %s thumbs (%s%s%s generated, %s%s%s removed, %s%s%s failed)" %(self.files, self.thumbs, Color.GREEN, self.generated_thumbs, Color.RESET, Color.BLUE, self.removed_thumbs, Color.RESET, Color.RED, len(self.failed_thumbs), Color.RESET)
 
 class Gallery:
     image_exts = ["jpg", "jpeg", "png", "gif"]
@@ -76,7 +92,7 @@ class Gallery:
                 if thumb_basename not in existing_checksums:
                     os.remove(thumb)
                     if self.should_log(removed):
-                        sys.stdout.write("-")
+                        sys.stdout.write("%s-%s" %(Color.BLUE, Color.RESET))
                         sys.stdout.flush()
                     removed += 1
             return removed
@@ -118,17 +134,17 @@ class Gallery:
                         generate_thumb(f, thumb_path)
                         generated += 1
                         if self.should_log(generated):
-                            sys.stdout.write("+")
+                            sys.stdout.write("%s+%s"%(Color.GREEN, Color.RESET))
                             sys.stdout.flush()
                     except IOError, e:
                         failed.append((f, e))
                         if self.should_log(0):
-                            sys.stdout.write("!")
+                            sys.stdout.write("%s!%s"%(Color.RED, Color.RESET))
                             sys.stdout.flush()
             return generated, failed
 
         if self.should_log(0):
-            sys.stdout.write("Scanning gallery at %s: " %self.path)
+            sys.stdout.write("Scanning gallery at %s " %self.path)
             sys.stdout.flush()
 
         self.gallery_paths = get_galleries(self.path)
@@ -220,12 +236,12 @@ class Gallery:
             write_files(f)
             write_footer(f)
 
-def recursive_populate(path):
-    gallery = Gallery(path, 1)
+def recursive_populate(path, log_freq):
+    gallery = Gallery(path, log_freq)
     gallery.populate()
     stats = gallery.stats.clone()
     for g in gallery.gallery_paths:
-        subgallery, substats = recursive_populate(os.path.join(gallery.path, g))
+        subgallery, substats = recursive_populate(os.path.join(gallery.path, g), log_freq)
         gallery.galleries.append(subgallery)
         stats.increase(substats)
 
@@ -236,9 +252,12 @@ if len(sys.argv) < 2:
     print "Need to specify the root gallery directory as first parameter."
     sys.exit(1)
 root_gallery_path = sys.argv[1]
-g, stats = recursive_populate(root_gallery_path)
+log_freq = 5
+g, stats = recursive_populate(root_gallery_path, log_freq)
+if log_freq > 0:
+    sys.stdout.write("\n")
 print "Total stats: %s" %stats
 if len(stats.failed_thumbs) > 0:
     print "There were errors when generating thumbnails for the following files:"
     for fail in stats.failed_thumbs:
-        print " * %s: %s" %(fail[0], fail[1])
+        print " %s* %s: %s%s" %(Color.RED, fail[0], fail[1], Color.RESET)
