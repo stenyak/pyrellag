@@ -5,6 +5,32 @@ import os, re, sys, Image, shutil, hashlib
 
 class UnsupportedFormatError(Exception): pass
 
+class Stats:
+    def __init__(self):
+        self.files = 0
+        self.thumbs = 0
+        self.removed_thumbs = 0
+        self.generated_thumbs = 0
+        self.failed_thumbs = []
+    def increase(self, stats):
+        self.files += stats.files
+        self.thumbs += stats.thumbs
+        self.removed_thumbs += stats.removed_thumbs
+        self.generated_thumbs += stats.generated_thumbs
+        self.failed_thumbs += stats.failed_thumbs
+    def clone(self):
+        result = Stats()
+        result.files = self.files
+        result.thumbs = self.thumbs
+        result.removed_thumbs = self.removed_thumbs
+        result.generated_thumbs = self.generated_thumbs
+        result.failed_thumbs = self.failed_thumbs[:]
+        return result
+    def __repr__(self):
+        return self.__str__()
+    def __str__(self):
+        return "%s files,\t %s thumbs\t (%s generated,\t %s removed,\t %s failed)" %(self.files, self.thumbs, self.generated_thumbs, self.removed_thumbs, len(self.failed_thumbs))
+
 class Gallery:
     image_exts = ["jpg", "jpeg", "png", "gif"]
     video_exts = ["3gp", "mov", "avi", "mpeg4", "mpg4", "mp4", "mkv"]
@@ -12,6 +38,7 @@ class Gallery:
     html_filename = "index.htm"
     thumbs_size = 128,128
     def __init__(self, path):
+        self.stats = Stats()
         self.galleries = []
         self.path = path
     def populate(self):
@@ -24,7 +51,6 @@ class Gallery:
             paths = [f for f in paths if os.path.isfile(f)] #filter non-files
             paths = [f for f in paths if r.match(f)] #filter by extension
             paths = [os.path.abspath(f) for f in paths] # convert to absolute
-            print "Found %s files" %len(paths)
             return paths
         def get_thumbs(path):
             thumbs_dir = os.path.join(path, *self.thumbs_dir_components)
@@ -33,7 +59,6 @@ class Gallery:
                 thumbs = [f for f in thumbs if os.path.isfile(f)]
             except OSError:
                 thumbs = []
-            print "Found %s thumbs" %len(thumbs)
             return thumbs
         def remove_orphan_thumbs(files, thumbs):
             def get_basename(path):
@@ -45,7 +70,7 @@ class Gallery:
                 if thumb_basename not in existing_checksums:
                     os.remove(thumb)
                     removed += 1
-            print "Removed %s thumbs" %removed
+            return removed
         def generate_missing_thumbs(files):
             def generate_thumb(f, thumb_path):
                 def video_thumb(f, thumb_path):
@@ -58,7 +83,6 @@ class Gallery:
                     thumb_dir = os.path.normpath(os.path.join(thumb_path, os.pardir))
                     if not os.path.isdir(thumb_dir):
                         os.makedirs(thumb_dir)
-                        print "Created thumb dir %s" %thumb_dir
                     img.save(thumb_path)
                 extension = os.path.splitext(f)[1][1:].lower()
                 if extension in self.image_exts:
@@ -68,23 +92,26 @@ class Gallery:
                 else:
                     raise UnsupportedFormatError()
             generated = 0
+            failed = []
             for f in files:
-                #print "processing %s" %f
                 thumb_path = self.get_thumb_path(f)
                 if not os.path.isfile(thumb_path):
                     try:
                         generate_thumb(f, thumb_path)
                         generated += 1
                     except IOError:
-                        print "Error processing %s" %f
-            print "Generated %s thumbs" %generated
+                        failed.append(f)
+            return generated, failed
 
 
         self.gallery_paths = get_galleries(self.path)
         self.files = get_filesystem_files(self.path)
 
-        remove_orphan_thumbs(self.files, get_thumbs(self.path))
-        generate_missing_thumbs(self.files)
+        thumbs = get_thumbs(self.path)
+        self.stats.files = len(self.files)
+        self.stats.thumbs = len(thumbs)
+        self.stats.removed_thumbs = remove_orphan_thumbs(self.files, thumbs)
+        self.stats.generated_thumbs, self.stats.failed_thumbs = generate_missing_thumbs(self.files)
     def get_checksum(self, abs_path):
         return hashlib.md5("file://"+abs_path).hexdigest()
     def get_thumb_path(self, f):
@@ -161,18 +188,24 @@ class Gallery:
             write_files(f)
             write_footer(f)
 
-
 def recursive_populate(path):
     gallery = Gallery(path)
     gallery.populate()
+    stats = gallery.stats.clone()
     for g in gallery.gallery_paths:
-        subgallery = recursive_populate(os.path.join(gallery.path, g))
+        subgallery, substats = recursive_populate(os.path.join(gallery.path, g))
         gallery.galleries.append(subgallery)
+        stats.increase(substats)
 
     gallery.update_html()
-    return gallery
+    return gallery, stats
 
 if len(sys.argv) < 2:
     print "Need to specify the data directory as first parameter."
     sys.exit(1)
-recursive_populate(sys.argv[1])
+g, stats = recursive_populate(sys.argv[1])
+print "Total stats: %s" %stats
+if len(stats.failed_thumbs) > 0:
+    print "There were errors when generating thumbnails for the following files:"
+    for fail in stats.failed_thumbs:
+        print " * %s" %fail
