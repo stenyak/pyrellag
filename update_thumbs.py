@@ -4,7 +4,7 @@
 import os, re, sys, Image
 
 class Gallery:
-    image_exts = ["jpg", "jpeg", "png"]
+    image_exts = ["jpg", "jpeg", "png", "gif"]
     thumbs_dirname = ".thumbs"
     html_filename = "index.htm"
     thumbs_size = 128,128
@@ -37,7 +37,7 @@ class Gallery:
         def generate_thumb(original, thumb):
             i = Image.open(original)
             i.thumbnail(self.thumbs_size)
-            i.save(thumb, "JPEG")
+            i.save(thumb)
         def generate_missing_thumbs(filesystem_images, filesystem_thumbs):
             generated = 0
             errors = 0
