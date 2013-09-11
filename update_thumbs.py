@@ -112,8 +112,10 @@ class Gallery:
         self.stats.thumbs = len(thumbs)
         self.stats.removed_thumbs = remove_orphan_thumbs(self.files, thumbs)
         self.stats.generated_thumbs, self.stats.failed_thumbs = generate_missing_thumbs(self.files)
+    def get_uri(self, abs_path):
+        return "file://" + abs_path
     def get_checksum(self, abs_path):
-        return hashlib.md5("file://"+abs_path).hexdigest()
+        return hashlib.md5(self.get_uri(abs_path)).hexdigest()
     def get_thumb_path(self, f):
         thumb_dir = os.path.join(f, os.pardir, *self.thumbs_dir_components)
         thumb_path = os.path.join(thumb_dir, self.get_checksum(f)+".png")
