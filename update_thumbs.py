@@ -113,19 +113,22 @@ class Gallery:
             result += "%s" %i
         return result
     def update_html(self):
+        def fwrite(f, text):
+            f.write(text)
+            f.write("\n")
         def write_header(f):
             pspath = [os.pardir] * len(self.path.split(os.sep)) + ["ps"]
             ps = os.path.join(*pspath)
-            f.write("<html><head><title>Gallery for %s</title>\n" %self.path)
-            f.write('<link href="%s/photoswipe.css" type="text/css" rel="stylesheet" />' %ps)
-            f.write('<script type="text/javascript" src="%s/lib/klass.min.js"></script>' %ps)
-            f.write('<script type="text/javascript" src="%s/code.photoswipe-3.0.5.min.js"></script>' %ps)
-            f.write('\n<style media="screen" type="text/css">\n')
-            f.write(open("pyrellag.css", "r").read())
-            f.write('\n</style>')
-            f.write("\n</head><body>\n")
+            fwrite(f, "<html><head><title>Gallery for %s</title>" %self.path)
+            fwrite(f, '<link href="%s/photoswipe.css" type="text/css" rel="stylesheet" />' %ps)
+            fwrite(f, '<script type="text/javascript" src="%s/lib/klass.min.js"></script>' %ps)
+            fwrite(f, '<script type="text/javascript" src="%s/code.photoswipe-3.0.5.min.js"></script>' %ps)
+            fwrite(f, '<style media="screen" type="text/css">')
+            fwrite(f, open("pyrellag.css", "r").read())
+            fwrite(f, '</style>')
+            fwrite(f, "</head><body>")
         def write_footer(f):
-            f.write("""
+            fwrite(f, """
                 <script>
                     document.addEventListener(
                         'DOMContentLoaded',
@@ -136,30 +139,30 @@ class Gallery:
                         false
                     );
                 </script>""")
-            f.write("</body></html>")
+            fwrite(f, "</body></html>")
         def write_logo(f):
-            f.write("\n<a clas='logo' href='https://github.com/stenyak/pyrellag'><div class='logo'>powered by<br/><b>Pyrellag!</b></div></a>")
+            fwrite(f, "<a clas='logo' href='https://github.com/stenyak/pyrellag'><div class='logo'>powered by<br/><b>Pyrellag!</b></div></a>")
         def write_subgalleries(f):
-            f.write("\n<div id='subgalleries'>")
+            fwrite(f, "<div id='subgalleries'>")
             paths = self.path.split(os.sep)
             for i in range(0, len(paths)-1):
                 level = len(paths) - 1 - i
                 path = ""
                 for j in range(0, level):
                     path = os.path.join(path, os.pardir)
-                f.write("<a class='hlable' href='%s'>%s</a> / " %(os.path.join(path, self.html_filename), paths[i]))
-            f.write("%s (%s):" %(paths[-1], len(self.images)))
+                fwrite(f, "<a class='hlable' href='%s'>%s</a> / " %(os.path.join(path, self.html_filename), paths[i]))
+            fwrite(f, "%s (%s):" %(paths[-1], len(self.images)))
             if len(self.galleries) > 0:
-                f.write("\n<ul style='margin: 0px'>")
+                fwrite(f, "<ul style='margin: 0px'>")
                 for g in self.galleries:
-                    f.write("\n<a class='subgallery' href='%s'><li class='hlable'>%s (%s)</li></a>" %(os.path.join(os.path.basename(os.path.normpath(g.path)), self.html_filename), os.path.basename(os.path.normpath(g.path)), len(g.images)))
-                f.write("\n</ul>")
-            f.write("</div>")
+                    fwrite(f, "<a class='subgallery' href='%s'><li class='hlable'>%s (%s)</li></a>" %(os.path.join(os.path.basename(os.path.normpath(g.path)), self.html_filename), os.path.basename(os.path.normpath(g.path)), len(g.images)))
+                fwrite(f, "</ul>")
+            fwrite(f, "</div>")
         def write_images(f):
-            f.write("\n<div id='Gallery' style='text-align:center;'>")
+            fwrite(f, "<div id='Gallery' style='text-align:center;'>")
             for i in self.images:
-                f.write("\n<a href='%s'><img class='image' src='%s' alt='Filename: %s'/></a>\n" %(i, os.path.join(self.thumbs_dirname, i), i))
-            f.write("\n</div>")
+                fwrite(f, "<a href='%s'><img class='image' src='%s' alt='Filename: %s'/></a>" %(i, os.path.join(self.thumbs_dirname, i), i))
+            fwrite(f, "</div>")
         html_path = os.path.join(self.path, self.html_filename)
         with open(html_path, "w") as f:
             write_header(f)
