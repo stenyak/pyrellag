@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 # Copyright (c) 2013, Bruno Gonzalez <stenyak@stenyak.com>. This software is licensed under the Affero General Public License version 3 or later.  See the LICENSE file.
 
-import os, re, sys, Image
+import os, re, sys, Image, traceback
 
 class Gallery:
     image_exts = ["jpg", "jpeg", "png", "gif"]
     thumbs_dirname = ".thumbs"
     html_filename = "index.htm"
     thumbs_size = 128,128
+    image_thumb_ext = "jpg"
+    video_thumb_ext = "gif"
     def __init__(self, path):
         self.galleries = []
         self.path = path
@@ -25,42 +27,80 @@ class Gallery:
             return result
         def get_galleries(path):
             return [d for d in os.listdir(self.path) if os.path.isdir(os.path.join(self.path, d)) and d != self.thumbs_dirname]
-        def remove_orphan_thumbs(filesystem_images, filesystem_thumbs):
-            deleted = 0
-            for t in filesystem_thumbs:
-                if not t in filesystem_images:
-                    thumb_path = os.path.join(self.path, self.thumbs_dirname, t)
-                    os.remove(thumb_path)
-                    deleted += 1
-                    #print "Removed orphan thumb at %s" %thumb_path
-            return deleted
-        def generate_thumb(original, thumb):
-            i = Image.open(original)
-            i.thumbnail(self.thumbs_size)
-            i.save(thumb)
-        def generate_missing_thumbs(filesystem_images, filesystem_thumbs):
+        def remove_orphan_thumbs(filesystem_image_name_exts, filesystem_thumbs):
+            orphan_thumbs = []
+            for k, v in filesystem_thumbs.iteritems():
+                if not k in filesystem_image_name_exts:
+                    orphan_thumbs.append((k,v))
+            for thumb in orphan_thumbs:
+                k, v = thumb
+                thumb_path = os.path.join(self.path, self.thumbs_dirname, k+v)
+                os.remove(thumb_path)
+                del filesystem_thumbs[k]
+                print "Removed orphan thumb at %s" %thumb_path
+            return len(orphan_thumbs)
+        def generate_thumb(original, thumb_dir):
+            basename, extension = os.path.splitext(os.path.basename(os.path.normpath(original)))
+            extension = extension[1:]
+            if extension in self.image_exts:
+                img = Image.open(original)
+                if img.mode != "RGB":
+                    img = img.convert("RGB")
+                def image_thumb(image, thumb_dir, basename):
+                    img.thumbnail(self.thumbs_size)
+                    thumb_extension = self.image_thumb_ext
+                    thumb_path = os.path.join(thumb_dir, basename+"."+thumb_extension)
+                    img.save(thumb_path)
+                    print "Image thumb. Info is: %s" %img.info
+                    return thumb_extension
+                def gif_thumb(image, thumb_dir, basename):
+                    print "GIF thumb. Info is: %s" %img.info
+                    thumb_extension = self.video_thumb_ext
+                    return thumb_extension
+                def video_thumb(image, thumb_dir, basename):
+                    print "Video thumb. Info is: %s" %img.info
+                    thumb_extension = self.video_thumb_ext
+                    return thumb_extension
+
+                if extension == "gif":
+                    try:
+                        img.seek(0)
+                        thumb_extension = gif_thumb(img, thumb_dir, basename)
+                    except EOFError:
+                        thumb_extension = image_thumb(img, thumb_dir, basename)
+                else:
+                    thumb_extension = image_thumb(img, thumb_dir, basename)
+                return thumb_extension
+            else:
+                thumb_extension = video_thumb(img, thumb_dir, basename)
+            return os.path.splitext(thumb_path)[1] #return extension
+        def generate_missing_thumbs(filesystem_image_name_exts, filesystem_thumbs):
             generated = 0
             errors = 0
             thumb_dir = os.path.join(self.path, self.thumbs_dirname)
             if not os.path.exists(thumb_dir):
                 os.makedirs(thumb_dir)
-            for i in filesystem_images:
-                if not i in filesystem_thumbs:
-                    original = os.path.join(self.path, i)
-                    thumb = os.path.join(thumb_dir, i)
+            for k, v in filesystem_image_name_exts.iteritems():
+                if not k in filesystem_thumbs:
+                    original = os.path.join(self.path, k+v)
                     try:
-                        generate_thumb(original, thumb)
-                        print "Generated %s thumbnail at %s" %(original, thumb)
+                        thumb_ext = generate_thumb(original, thumb_dir)
+                        filesystem_thumbs[k] = "."+thumb_ext
+                        #print "Generated %s thumbnail with extension %s" %(original, thumb_ext)
                         generated += 1
                     except IOError, e:
-                        print "Error: Couldn't create %s thumbnail at %s: %s" %(original, thumb, e)
+                        print "Couldn't create %s thumbnail:" %original
+                        traceback.print_exc()
+                        print ""
                         errors += 1
             return generated, errors
 
         filesystem_images = get_filesystem_images(self.path)
         filesystem_thumbs = get_filesystem_thumbs(self.path)
-        deleted = remove_orphan_thumbs(filesystem_images, filesystem_thumbs)
-        generated, generated_errors = generate_missing_thumbs(filesystem_images, filesystem_thumbs)
+        filesystem_image_name_exts = dict([os.path.splitext(i) for i in filesystem_images])
+        filesystem_thumbs = dict([os.path.splitext(i) for i in filesystem_thumbs])
+        deleted = remove_orphan_thumbs(filesystem_image_name_exts, filesystem_thumbs)
+        generated, generated_errors = generate_missing_thumbs(filesystem_image_name_exts, filesystem_thumbs)
 
         self.gallery_paths = get_galleries(self.path)
         self.images = filesystem_images
