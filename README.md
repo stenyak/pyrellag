@@ -23,13 +23,12 @@ Photo view:
 Features
 --------
 
- - Support for images (jpeg, png and gif) and videos (gif and apng*).
+ - Support for image files (jpg, jpeg, png and gif).
+ - Support for video files (3gp, mov, avi, mpeg4, mpg4, mp4 and mkv).
  - Use your keyboard or mouse wheel for faster browsing.
  - Designed to work straight from your existing filesystem: no need to re-arrange directories into any special structure, or "upload" stuff anywhere, or set up any stinkin database.
  - Automatic thumbnail generation/deletion and indices update, using provided script.
  - Very light on the CPU and network.
-
-(*) Your browser must support them (otherwise it'll fall back to non-animated png); and the filename must still have 'png' extension.
 
 Instructions
 ------------
@@ -48,8 +47,8 @@ ToDo
 ----
 
 Some stuff I'd like to do in the future:
- - Support for 3gp/mov/avi/mpeg video previews.
  - Support for user & group access permissions.
+ - Use an animated gif with select frames for video thumbnails.
 
 Contact
 -------

@@ -74,9 +74,6 @@ body {
 .subgallery {
     text-decoration: none;
 }
-#Gallery{
-    clear:both;
-}
 .logo {
     width: auto;
     float: right;

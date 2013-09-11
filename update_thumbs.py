@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Copyright (c) 2013, Bruno Gonzalez <stenyak@stenyak.com>. This software is licensed under the Affero General Public License version 3 or later.  See the LICENSE file.
 
-import os, re, sys, Image, traceback
+import os, re, sys, Image, traceback, shutil
 
 class UnsupportedFormatError(Exception): pass
 
@@ -50,23 +50,24 @@ class Gallery:
         def generate_thumb(original, thumb_dir):
             def image_thumb(image, thumb_dir, basename):
                 img.thumbnail(self.thumbs_size)
-                thumb_extension = self.image_thumb_ext
-                thumb_path = os.path.join(thumb_dir, basename+"."+thumb_extension)
+                thumb_path = os.path.join(thumb_dir, basename+"."+self.image_thumb_ext)
                 img.save(thumb_path)
-                return thumb_extension
+                print "writen image path: %s" %thumb_path
+                return self.image_thumb_ext
             def gif_thumb(image, thumb_dir, basename):
-                thumb_extension = self.video_thumb_ext
-                return thumb_extension
+                if image.mode != "RGB":
+                    image = image.convert("RGB")
+                thumb_path = os.path.join(thumb_dir, basename+"."+self.video_thumb_ext)
+                shutil.copyfile("video.gif", thumb_path)
+                return self.video_thumb_ext
             def video_thumb(original, thumb_dir, basename):
-                thumb_extension = self.video_thumb_ext
-                return thumb_extension
+                thumb_path = os.path.join(thumb_dir, basename+"."+self.video_thumb_ext)
+                shutil.copyfile("video.gif", thumb_path)
+                return self.video_thumb_ext
             basename, extension = os.path.splitext(os.path.basename(os.path.normpath(original)))
-            extension = extension[1:]
-            if extension.lower() in self.image_exts:
+            extension = extension[1:].lower()
+            if extension in self.image_exts:
                 img = Image.open(original)
-                if img.mode != "RGB":
-                    img = img.convert("RGB")
-
                 if extension == "gif":
                     try:
                         img.seek(0)
@@ -76,7 +77,7 @@ class Gallery:
                 else:
                     thumb_extension = image_thumb(img, thumb_dir, basename)
                 return thumb_extension
-            elif extension.lower() in self.video_exts:
+            elif extension in self.video_exts:
                 thumb_extension = video_thumb(original, thumb_dir, basename)
             else:
                 raise UnsupportedFormatError()
@@ -93,7 +94,7 @@ class Gallery:
                     try:
                         thumb_ext = generate_thumb(original, thumb_dir)
                         filesystem_thumbs[k] = ".%s" %thumb_ext
-                        print "Generated %s thumbnail for %s" %(thumb_ext, original)
+                        #print "Generated %s thumbnail for %s" %(thumb_ext, original)
                         generated += 1
                     except UnsupportedFormatError, e:
                         print "Unsupported format, couldn't create thumbnail for %s" %original
@@ -117,6 +118,7 @@ class Gallery:
 
         self.gallery_paths = get_galleries(self.path)
         self.images = filesystem_images
+        self.videos = filesystem_videos
         return deleted, generated, generated_errors, len(self.images)
     def __repr__(self):
         return self.__str__()
@@ -174,13 +176,20 @@ class Gallery:
         def write_images(f):
             fwrite(f, "<div id='Gallery' style='text-align:center;'>")
             for i in self.images:
-                fwrite(f, "<a href='%s'><img class='image' src='%s' alt='Filename: %s'/></a>" %(i, os.path.join(self.thumbs_dirname, i), i))
+                fwrite(f, "<a href='%s'><img class='image' src='%s' alt='Filename: %s'/></a>" %(i, os.path.splitext(os.path.join(self.thumbs_dirname, i))[0]+"."+self.image_thumb_ext, i))
+            fwrite(f, "</div>")
+        def write_videos(f):
+            fwrite(f, "<div id='Videos' style='text-align:center;'>")
+            for i in self.videos:
+                fwrite(f, "<a href='%s'><img class='image' src='%s' alt='Filename: %s'/></a>" %(i, os.path.splitext(os.path.join(self.thumbs_dirname, i))[0]+"."+self.video_thumb_ext, i))
             fwrite(f, "</div>")
         html_path = os.path.join(self.path, self.html_filename)
         with open(html_path, "w") as f:
             write_header(f)
             write_logo(f)
             write_subgalleries(f)
+            fwrite(f, "<div style='clear:both'/>")
+            write_videos(f)
             write_images(f)
             write_footer(f)
 
