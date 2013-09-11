@@ -176,9 +176,9 @@ class Gallery:
             fwrite(f, "</div>")
         def write_files(f):
             fwrite(f, "<div id='Gallery' style='text-align:center;'>")
-            for cur_file in self.files:
-                thumb_path = self.get_thumb_path(cur_file) #TODO: make relative to index.htm
-                file_path = cur_file #TODO: make relative to index.htm
+            for cur_file in sorted(self.files):
+                thumb_path = os.path.relpath(self.get_thumb_path(cur_file), self.path)
+                file_path = os.path.relpath(cur_file, self.path)
                 fwrite(f, "<a href='%s'><img class='image' src='%s' alt='Filename: %s'/></a>" %(file_path, thumb_path, file_path))
             fwrite(f, "</div>")
         html_path = os.path.join(self.path, self.html_filename)
