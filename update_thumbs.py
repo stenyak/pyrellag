@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Copyright (c) 2013, Bruno Gonzalez <stenyak@stenyak.com>. This software is licensed under the Affero General Public License version 3 or later.  See the LICENSE file.
 
-import os, re, sys, Image, shutil, hashlib
+import os, re, sys, Image, shutil, hashlib, PngImagePlugin
 
 class UnsupportedFormatError(Exception): pass
 
@@ -81,12 +81,18 @@ class Gallery:
                     verify_thumb_dir(thumb_path)
                     shutil.copyfile("video.png", thumb_path)
                 def image_thumb(f, thumb_path):
+                    def get_pnginfo(file_path):
+                        info = PngImagePlugin.PngInfo()
+                        info.add_text("Thumb::URI", self.get_uri(file_path))
+                        mtime = str(os.path.getmtime(file_path))
+                        info.add_text("Thumb::MTime", mtime)
+                        return info
                     img = Image.open(f)
                     if img.mode != "RGB":
                         img = img.convert("RGB")
                     img.thumbnail(self.thumbs_size)
                     verify_thumb_dir(thumb_path)
-                    img.save(thumb_path)
+                    img.save(thumb_path, pnginfo=get_pnginfo(f))
                 extension = os.path.splitext(f)[1][1:].lower()
                 if extension in self.image_exts:
                     image_thumb(f, thumb_path)
