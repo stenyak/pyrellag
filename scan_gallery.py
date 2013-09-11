@@ -214,7 +214,8 @@ def recursive_populate(path):
 if len(sys.argv) < 2:
     print "Need to specify the root gallery directory as first parameter."
     sys.exit(1)
-g, stats = recursive_populate(sys.argv[1])
+root_gallery_path = sys.argv[1]
+g, stats = recursive_populate(root_gallery_path)
 print "Total stats: %s" %stats
 if len(stats.failed_thumbs) > 0:
     print "There were errors when generating thumbnails for the following files:"
