@@ -34,13 +34,13 @@ Instructions
 ------------
 
 Quick set up:
- - Create a directory named `data`, and copy/symlink all your media directories there. Any nesting level is supported (as long as your filesystem can handle it).
- - Run `./update_thumbs.py data`
- - Open your `data` directory in your web browser. You can quickly fire up a web server using `cd data; python -m SimpleHTTPServer`
+ - Create a directory named `my_gallery`, and copy/symlink all your media directories there. Any nesting level is supported (as long as your filesystem can handle it).
+ - Run `./scan_gallery.py my_gallery`
+ - Open your `my_gallery` directory in your web browser. You can quickly fire up a web server using `python -m SimpleHTTPServer`
 
 
 Autoscan:
- - Create a cronjob that runs `./update_thumbs.py data` with the appropriate owner and permissions.
+ - Create a cronjob that runs `./scan_gallery.py my_gallery` with the appropriate owner and permissions.
 
 
 ToDo

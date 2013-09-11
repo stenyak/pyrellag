@@ -212,7 +212,7 @@ def recursive_populate(path):
     return gallery, stats
 
 if len(sys.argv) < 2:
-    print "Need to specify the data directory as first parameter."
+    print "Need to specify the root gallery directory as first parameter."
     sys.exit(1)
 g, stats = recursive_populate(sys.argv[1])
 print "Total stats: %s" %stats
