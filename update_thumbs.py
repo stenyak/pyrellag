@@ -108,8 +108,8 @@ class Gallery:
                     try:
                         generate_thumb(f, thumb_path)
                         generated += 1
-                    except IOError:
-                        failed.append(f)
+                    except IOError, e:
+                        failed.append((f, e))
             return generated, failed
 
 
@@ -219,4 +219,4 @@ print "Total stats: %s" %stats
 if len(stats.failed_thumbs) > 0:
     print "There were errors when generating thumbnails for the following files:"
     for fail in stats.failed_thumbs:
-        print " * %s" %fail
+        print " * %s: %s" %(fail[0], fail[1])
