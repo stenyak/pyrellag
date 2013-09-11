@@ -119,9 +119,9 @@ class Gallery:
                     verify_thumb_dir(thumb_path)
                     img.save(thumb_path, pnginfo=get_pnginfo(f))
                 extension = os.path.splitext(f)[1][1:].lower()
-                if extension in self.image_exts:
+                if self.is_image(f):
                     image_thumb(f, thumb_path)
-                elif extension in self.video_exts:
+                elif self.is_video(f):
                     video_thumb(f, thumb_path)
                 else:
                     raise UnsupportedFormatError()
@@ -158,6 +158,12 @@ class Gallery:
         if self.should_log(0):
             sys.stdout.write("\n")
             sys.stdout.flush()
+    def is_video(self, path):
+        extension = os.path.splitext(path)[1][1:].lower()
+        return extension in self.video_exts
+    def is_image(self, path):
+        extension = os.path.splitext(path)[1][1:].lower()
+        return extension in self.image_exts
     def get_uri(self, abs_path):
         return "file://" + abs_path
     def get_checksum(self, abs_path):
