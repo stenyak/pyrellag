@@ -172,4 +172,7 @@ def recursive_populate(path):
     gallery.update_html()
     return gallery
 
+if len(sys.argv) < 2:
+    print "Need to specify the data directory as first parameter."
+    sys.exit(1)
 recursive_populate(sys.argv[1])
