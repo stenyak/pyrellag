@@ -3,8 +3,11 @@
 
 import os, re, sys, Image, traceback
 
+class UnsupportedFormatError(Exception): pass
+
 class Gallery:
     image_exts = ["jpg", "jpeg", "png", "gif"]
+    video_exts = ["3gp", "mov", "avi", "mpeg4", "mpg4", "mp4", "mkv"]
     thumbs_dirname = ".thumbs"
     html_filename = "index.htm"
     thumbs_size = 128,128
@@ -14,6 +17,11 @@ class Gallery:
         self.galleries = []
         self.path = path
     def populate(self):
+        def get_filesystem_videos(path):
+            regexp = ".*\.(%s)$" %"|".join(self.video_exts)
+            r = re.compile(regexp, re.IGNORECASE)
+            images = [f for f in os.listdir(self.path) if os.path.isfile(os.path.join(self.path, f)) and r.match(f)]
+            return images
         def get_filesystem_images(path):
             regexp = ".*\.(%s)$" %"|".join(self.image_exts)
             r = re.compile(regexp, re.IGNORECASE)
@@ -27,10 +35,10 @@ class Gallery:
             return result
         def get_galleries(path):
             return [d for d in os.listdir(self.path) if os.path.isdir(os.path.join(self.path, d)) and d != self.thumbs_dirname]
-        def remove_orphan_thumbs(filesystem_image_name_exts, filesystem_thumbs):
+        def remove_orphan_thumbs(filesystem_file_name_exts, filesystem_thumbs):
             orphan_thumbs = []
             for k, v in filesystem_thumbs.iteritems():
-                if not k in filesystem_image_name_exts:
+                if not k in filesystem_file_name_exts:
                     orphan_thumbs.append((k,v))
             for thumb in orphan_thumbs:
                 k, v = thumb
@@ -40,27 +48,24 @@ class Gallery:
                 print "Removed orphan thumb at %s" %thumb_path
             return len(orphan_thumbs)
         def generate_thumb(original, thumb_dir):
+            def image_thumb(image, thumb_dir, basename):
+                img.thumbnail(self.thumbs_size)
+                thumb_extension = self.image_thumb_ext
+                thumb_path = os.path.join(thumb_dir, basename+"."+thumb_extension)
+                img.save(thumb_path)
+                return thumb_extension
+            def gif_thumb(image, thumb_dir, basename):
+                thumb_extension = self.video_thumb_ext
+                return thumb_extension
+            def video_thumb(original, thumb_dir, basename):
+                thumb_extension = self.video_thumb_ext
+                return thumb_extension
             basename, extension = os.path.splitext(os.path.basename(os.path.normpath(original)))
             extension = extension[1:]
             if extension.lower() in self.image_exts:
                 img = Image.open(original)
                 if img.mode != "RGB":
                     img = img.convert("RGB")
-                def image_thumb(image, thumb_dir, basename):
-                    img.thumbnail(self.thumbs_size)
-                    thumb_extension = self.image_thumb_ext
-                    thumb_path = os.path.join(thumb_dir, basename+"."+thumb_extension)
-                    img.save(thumb_path)
-                    print "Image thumb. Info is: %s" %img.info
-                    return thumb_extension
-                def gif_thumb(image, thumb_dir, basename):
-                    print "GIF thumb. Info is: %s" %img.info
-                    thumb_extension = self.video_thumb_ext
-                    return thumb_extension
-                def video_thumb(image, thumb_dir, basename):
-                    print "Video thumb. Info is: %s" %img.info
-                    thumb_extension = self.video_thumb_ext
-                    return thumb_extension
 
                 if extension == "gif":
                     try:
@@ -71,36 +76,44 @@ class Gallery:
                 else:
                     thumb_extension = image_thumb(img, thumb_dir, basename)
                 return thumb_extension
+            elif extension.lower() in self.video_exts:
+                thumb_extension = video_thumb(original, thumb_dir, basename)
             else:
-                thumb_extension = video_thumb(img, thumb_dir, basename)
-            return os.path.splitext(thumb_path)[1] #return extension
-        def generate_missing_thumbs(filesystem_image_name_exts, filesystem_thumbs):
+                raise UnsupportedFormatError()
+            return thumb_extension
+        def generate_missing_thumbs(filesystem_file_name_exts, filesystem_thumbs):
             generated = 0
             errors = 0
             thumb_dir = os.path.join(self.path, self.thumbs_dirname)
             if not os.path.exists(thumb_dir):
                 os.makedirs(thumb_dir)
-            for k, v in filesystem_image_name_exts.iteritems():
+            for k, v in filesystem_file_name_exts.iteritems():
                 if not k in filesystem_thumbs:
                     original = os.path.join(self.path, k+v)
                     try:
                         thumb_ext = generate_thumb(original, thumb_dir)
-                        filesystem_thumbs[k] = "."+thumb_ext
-                        #print "Generated %s thumbnail with extension %s" %(original, thumb_ext)
+                        filesystem_thumbs[k] = ".%s" %thumb_ext
+                        print "Generated %s thumbnail for %s" %(thumb_ext, original)
                         generated += 1
-                    except IOError, e:
-                        print "Couldn't create %s thumbnail:" %original
+                    except UnsupportedFormatError, e:
+                        print "Unsupported format, couldn't create thumbnail for %s" %original
+                        errors += 1
+                    except Exception, e:
+                        print "Unknown error, couldn't create thumbnail for %s" %original
                         traceback.print_exc()
                         print ""
                         errors += 1
             return generated, errors
 
         filesystem_images = get_filesystem_images(self.path)
+        filesystem_videos = get_filesystem_videos(self.path)
         filesystem_thumbs = get_filesystem_thumbs(self.path)
-        filesystem_image_name_exts = dict([os.path.splitext(i) for i in filesystem_images])
+        filesystem_image_name_exts = [os.path.splitext(i) for i in filesystem_images]
+        filesystem_video_name_exts = [os.path.splitext(i) for i in filesystem_videos]
+        filesystem_file_name_exts = dict(filesystem_image_name_exts + filesystem_video_name_exts)
         filesystem_thumbs = dict([os.path.splitext(i) for i in filesystem_thumbs])
-        deleted = remove_orphan_thumbs(filesystem_image_name_exts, filesystem_thumbs)
-        generated, generated_errors = generate_missing_thumbs(filesystem_image_name_exts, filesystem_thumbs)
+        deleted = remove_orphan_thumbs(filesystem_file_name_exts, filesystem_thumbs)
+        generated, generated_errors = generate_missing_thumbs(filesystem_file_name_exts, filesystem_thumbs)
 
         self.gallery_paths = get_galleries(self.path)
         self.images = filesystem_images
