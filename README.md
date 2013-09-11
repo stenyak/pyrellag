@@ -27,7 +27,7 @@ Features
  - Support for video files (3gp, mov, avi, mpeg4, mpg4, mp4 and mkv).
  - Use your keyboard or mouse wheel for faster browsing.
  - Designed to work straight from your existing filesystem: no need to re-arrange directories into any special structure, or "upload" stuff anywhere, or set up any stinkin database.
- - Automatic thumbnail generation/deletion and indices update, using provided script.
+ - Automatic thumbnail management, following **freedesktop.org Thumbnail Managing Standard**.
  - Very light on the CPU and network.
 
 Instructions
