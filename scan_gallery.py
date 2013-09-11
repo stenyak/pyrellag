@@ -37,10 +37,16 @@ class Gallery:
     thumbs_dir_components = [".thumbnails", "normal"]
     html_filename = "index.htm"
     thumbs_size = 128,128
-    def __init__(self, path):
+    def __init__(self, path, log_freq = 0):
+        """ path is the root directory where all the media files and subdirectories are to be found
+            log_freq specifies the logging interval during the scan process (will log every log_freq-th scanned file). use a <= 0 value to disable logging """
         self.stats = Stats()
         self.galleries = []
         self.path = path
+        self.log_freq = log_freq
+    def should_log(self, number):
+        if self.log_freq <= 0: return False
+        return number % self.log_freq == 0
     def populate(self):
         def get_galleries(path):
             return [d for d in os.listdir(path) if os.path.isdir(os.path.join(self.path, d)) and d != self.thumbs_dir_components[0]]
@@ -69,6 +75,9 @@ class Gallery:
                 thumb_basename = get_basename(thumb)
                 if thumb_basename not in existing_checksums:
                     os.remove(thumb)
+                    if self.should_log(removed):
+                        sys.stdout.write("-")
+                        sys.stdout.flush()
                     removed += 1
             return removed
         def generate_missing_thumbs(files):
@@ -108,10 +117,19 @@ class Gallery:
                     try:
                         generate_thumb(f, thumb_path)
                         generated += 1
+                        if self.should_log(generated):
+                            sys.stdout.write("+")
+                            sys.stdout.flush()
                     except IOError, e:
                         failed.append((f, e))
+                        if self.should_log(0):
+                            sys.stdout.write("!")
+                            sys.stdout.flush()
             return generated, failed
 
+        if self.should_log(0):
+            sys.stdout.write("Scanning gallery at %s: " %self.path)
+            sys.stdout.flush()
 
         self.gallery_paths = get_galleries(self.path)
         self.files = get_filesystem_files(self.path)
@@ -121,6 +139,9 @@ class Gallery:
         self.stats.thumbs = len(thumbs)
         self.stats.removed_thumbs = remove_orphan_thumbs(self.files, thumbs)
         self.stats.generated_thumbs, self.stats.failed_thumbs = generate_missing_thumbs(self.files)
+        if self.should_log(0):
+            sys.stdout.write("\n")
+            sys.stdout.flush()
     def get_uri(self, abs_path):
         return "file://" + abs_path
     def get_checksum(self, abs_path):
@@ -200,7 +221,7 @@ class Gallery:
             write_footer(f)
 
 def recursive_populate(path):
-    gallery = Gallery(path)
+    gallery = Gallery(path, 1)
     gallery.populate()
     stats = gallery.stats.clone()
     for g in gallery.gallery_paths:
