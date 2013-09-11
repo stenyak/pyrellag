@@ -202,7 +202,7 @@ class Gallery:
                         'DOMContentLoaded',
                         function()
                         {
-                            var myPhotoSwipe = Code.PhotoSwipe.attach( window.document.querySelectorAll('#Gallery a'), { enableMouseWheel: true , enableKeyboard: true, imageScaleMethod: 'fitNoUpscale', loop: false } );
+                            var myPhotoSwipe = Code.PhotoSwipe.attach( window.document.querySelectorAll('#Gallery a.photo'), { enableMouseWheel: true , enableKeyboard: true, imageScaleMethod: 'fitNoUpscale', loop: false } );
                         },
                         false
                     );
@@ -231,7 +231,12 @@ class Gallery:
             for cur_file in sorted(self.files):
                 thumb_path = os.path.relpath(self.get_thumb_path(cur_file), self.path)
                 file_path = os.path.relpath(cur_file, self.path)
-                fwrite(f, "<a href='%s'><img class='image' src='%s' alt='Filename: %s'/></a>" %(file_path, thumb_path, file_path))
+                if self.is_image(file_path):
+                    fwrite(f, "<a class='photo' href='%s'><img class='image' src='%s' alt='Filename: %s'/></a>" %(file_path, thumb_path, file_path))
+                elif self.is_video(file_path):
+                    fwrite(f, "<a href='%s'><img class='image' src='%s' alt='Filename: %s'/></a>" %(file_path, thumb_path, file_path))
+                else:
+                    raise UnsupportedFormatError()
             fwrite(f, "</div>")
         html_path = os.path.join(self.path, self.html_filename)
         with open(html_path, "w") as f:
