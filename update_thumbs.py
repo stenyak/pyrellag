@@ -42,7 +42,7 @@ class Gallery:
         def generate_thumb(original, thumb_dir):
             basename, extension = os.path.splitext(os.path.basename(os.path.normpath(original)))
             extension = extension[1:]
-            if extension in self.image_exts:
+            if extension.lower() in self.image_exts:
                 img = Image.open(original)
                 if img.mode != "RGB":
                     img = img.convert("RGB")
