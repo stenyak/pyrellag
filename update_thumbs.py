@@ -73,16 +73,19 @@ class Gallery:
             return removed
         def generate_missing_thumbs(files):
             def generate_thumb(f, thumb_path):
+                def verify_thumb_dir(thumb_path):
+                    thumb_dir = os.path.normpath(os.path.join(thumb_path, os.pardir))
+                    if not os.path.isdir(thumb_dir):
+                        os.makedirs(thumb_dir)
                 def video_thumb(f, thumb_path):
+                    verify_thumb_dir(thumb_path)
                     shutil.copyfile("video.png", thumb_path)
                 def image_thumb(f, thumb_path):
                     img = Image.open(f)
                     if img.mode != "RGB":
                         img = img.convert("RGB")
                     img.thumbnail(self.thumbs_size)
-                    thumb_dir = os.path.normpath(os.path.join(thumb_path, os.pardir))
-                    if not os.path.isdir(thumb_dir):
-                        os.makedirs(thumb_dir)
+                    verify_thumb_dir(thumb_path)
                     img.save(thumb_path)
                 extension = os.path.splitext(f)[1][1:].lower()
                 if extension in self.image_exts:
