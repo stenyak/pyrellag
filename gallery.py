@@ -179,7 +179,7 @@ class Gallery:
             result += line("%s (%s):" %(os.path.basename(paths[-1]), len(self.files)))
             if len(self.gallery_paths) > 0:
                 result += line("<ul style='margin: 0px'>")
-                for path in [os.path.normpath(os.path.join(self.path, path)) for path in self.gallery_paths]:
+                for path in [os.path.normpath(os.path.join(self.path, path)) for path in sorted(self.gallery_paths)]:
                     result += line("<a class='subgallery' href='/gallery/%s'><li class='hlable'>%s</li></a>" %(path, os.path.basename(path)))
                 result += line("</ul>")
             result += line("</div>")
