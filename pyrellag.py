@@ -25,6 +25,12 @@ def show_gallery(path):
     result = result.replace("TTTTIME", "%.4f" %(end-start))
     return result
 
+@app.route('/video/<path:path>')
+def show_video(path):
+    video_path = urllib.unquote(path).encode("utf-8")
+    path = os.path.dirname(video_path)
+    return render_template("video.html", video_path = video_path, path = path, video_basename = os.path.basename(video_path))
+
 @app.route('/file/<path:path>')
 def show_image(path):
     path = urllib.unquote(path).encode("utf-8")

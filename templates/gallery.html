@@ -28,7 +28,7 @@
                 {% if i.type == "image" %}
                 <a class='photo' href='/file/{{ i.file_path|urlencode }}'><img class='image' src='/file/{{ i.thumb_path|urlencode }}' alt='Filename: {{ i.file_path }}'/></a>
                 {% elif i.type == "video" %}
-                <a href='/file/{{ i.file_path|urlencode }}'><img class='image' src='/file/{{ i.thumb_path|urlencode }}' alt='Filename: {{ i.file_path }}'/></a>
+                <a href='/video/{{ i.file_path|urlencode }}'><img class='image' src='/file/{{ i.thumb_path|urlencode }}' alt='Filename: {{ i.file_path }}'/></a>
                 {% endif %}
             {% endfor %}
         </div>
