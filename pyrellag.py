@@ -6,6 +6,10 @@ from flask import Flask, redirect, send_file
 from gallery import Gallery
 app = Flask(__name__)
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_file("favicon.ico")
+
 @app.route('/')
 def root():
     return redirect("/gallery/data")
