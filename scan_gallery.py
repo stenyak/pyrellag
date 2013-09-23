@@ -180,23 +180,27 @@ class Gallery:
         for i in self.galleries:
             result += "%s" %i
         return result
-    def update_html(self):
-        def fwrite(f, text):
-            f.write(text)
-            f.write("\n")
-        def write_header(f):
+    def get_html_path(self):
+        return os.path.join(self.path, self.html_filename)
+    def get_html(self):
+        def line(text):
+            return text + "\n"
+        def write_header():
             pspath = [os.pardir] * len(self.path.split(os.sep)) + ["ps"]
             ps = os.path.join(*pspath)
-            fwrite(f, "<html><head><title>Gallery for %s</title>" %self.path)
-            fwrite(f, '<link href="%s/photoswipe.css" type="text/css" rel="stylesheet" />' %ps)
-            fwrite(f, '<script type="text/javascript" src="%s/lib/klass.min.js"></script>' %ps)
-            fwrite(f, '<script type="text/javascript" src="%s/code.photoswipe-3.0.5.min.js"></script>' %ps)
-            fwrite(f, '<style media="screen" type="text/css">')
-            fwrite(f, open("pyrellag.css", "r").read())
-            fwrite(f, '</style>')
-            fwrite(f, "</head><body>")
-        def write_footer(f):
-            fwrite(f, """
+            result = ""
+            result += line("<html><head><title>Gallery for %s</title>" %self.path)
+            result += line('<link href="%s/photoswipe.css" type="text/css" rel="stylesheet" />' %ps)
+            result += line('<script type="text/javascript" src="%s/lib/klass.min.js"></script>' %ps)
+            result += line('<script type="text/javascript" src="%s/code.photoswipe-3.0.5.min.js"></script>' %ps)
+            result += line('<style media="screen" type="text/css">')
+            result += line(open("pyrellag.css", "r").read())
+            result += line('</style>')
+            result += line("</head><body>")
+            return result
+        def write_footer():
+            result = ""
+            result += line("""
                 <script>
                     document.addEventListener(
                         'DOMContentLoaded',
@@ -207,45 +211,52 @@ class Gallery:
                         false
                     );
                 </script>""")
-            fwrite(f, "</body></html>")
-        def write_logo(f):
-            fwrite(f, "<a clas='logo' href='https://github.com/stenyak/pyrellag'><div class='logo'>powered by<br/><b>Pyrellag!</b></div></a>")
-        def write_subgalleries(f):
-            fwrite(f, "<div id='subgalleries'>")
+            result += line("</body></html>")
+            return result
+        def write_logo():
+            result = ""
+            result += line("<a clas='logo' href='https://github.com/stenyak/pyrellag'><div class='logo'>powered by<br/><b>Pyrellag!</b></div></a>")
+            return result
+        def write_subgalleries():
+            result = ""
+            result += line("<div id='subgalleries'>")
             paths = self.path.split(os.sep)
             for i in range(0, len(paths)-1):
                 level = len(paths) - 1 - i
                 path = ""
                 for j in range(0, level):
                     path = os.path.join(path, os.pardir)
-                fwrite(f, "<a class='hlable' href='%s'>%s</a> / " %(os.path.join(path, self.html_filename), paths[i]))
-            fwrite(f, "%s (%s):" %(paths[-1], len(self.files)))
+                result += line("<a class='hlable' href='%s'>%s</a> / " %(os.path.join(path, self.html_filename), paths[i]))
+            result += line("%s (%s):" %(paths[-1], len(self.files)))
             if len(self.galleries) > 0:
-                fwrite(f, "<ul style='margin: 0px'>")
+                result += line("<ul style='margin: 0px'>")
                 for g in self.galleries:
-                    fwrite(f, "<a class='subgallery' href='%s'><li class='hlable'>%s (%s)</li></a>" %(os.path.join(os.path.basename(os.path.normpath(g.path)), self.html_filename), os.path.basename(os.path.normpath(g.path)), len(g.files)))
-                fwrite(f, "</ul>")
-            fwrite(f, "</div>")
-        def write_files(f):
-            fwrite(f, "<div id='Gallery' style='text-align:center;'>")
+                    result += line("<a class='subgallery' href='%s'><li class='hlable'>%s (%s)</li></a>" %(os.path.join(os.path.basename(os.path.normpath(g.path)), self.html_filename), os.path.basename(os.path.normpath(g.path)), len(g.files)))
+                result += line("</ul>")
+            result += line("</div>")
+            return result
+        def write_files():
+            result = ""
+            result += line("<div id='Gallery' style='text-align:center;'>")
             for cur_file in sorted(self.files):
                 thumb_path = os.path.relpath(self.get_thumb_path(cur_file), self.path)
                 file_path = os.path.relpath(cur_file, self.path)
                 if self.is_image(file_path):
-                    fwrite(f, "<a class='photo' href='%s'><img class='image' src='%s' alt='Filename: %s'/></a>" %(file_path, thumb_path, file_path))
+                    result += line("<a class='photo' href='%s'><img class='image' src='%s' alt='Filename: %s'/></a>" %(file_path, thumb_path, file_path))
                 elif self.is_video(file_path):
-                    fwrite(f, "<a href='%s'><img class='image' src='%s' alt='Filename: %s'/></a>" %(file_path, thumb_path, file_path))
+                    result += line("<a href='%s'><img class='image' src='%s' alt='Filename: %s'/></a>" %(file_path, thumb_path, file_path))
                 else:
                     raise UnsupportedFormatError()
-            fwrite(f, "</div>")
-        html_path = os.path.join(self.path, self.html_filename)
-        with open(html_path, "w") as f:
-            write_header(f)
-            write_logo(f)
-            write_subgalleries(f)
-            fwrite(f, "<div style='clear:both'/>")
-            write_files(f)
-            write_footer(f)
+            result += line("</div>")
+            return result
+        result = ""
+        result += write_header()
+        result += write_logo()
+        result += write_subgalleries()
+        result += line("<div style='clear:both'/>")
+        result += write_files()
+        result += write_footer()
+        return result
 
 def recursive_populate(path, log_freq):
     gallery = Gallery(path, log_freq)
@@ -255,8 +266,8 @@ def recursive_populate(path, log_freq):
         subgallery, substats = recursive_populate(os.path.join(gallery.path, g), log_freq)
         gallery.galleries.append(subgallery)
         stats.increase(substats)
-
-    gallery.update_html()
+    with open(gallery.get_html_path(), "w") as f:
+        f.write(gallery.get_html())
     return gallery, stats
 
 if len(sys.argv) < 2:
