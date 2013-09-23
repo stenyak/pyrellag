@@ -15,8 +15,6 @@ def recursive_populate(path, log_freq):
         subgallery, substats = recursive_populate(os.path.join(gallery.path, g), log_freq)
         gallery.galleries.append(subgallery)
         stats.increase(substats)
-    with open(gallery.get_html_path(), "w") as f:
-        f.write(gallery.get_html())
     return gallery, stats
 
 if len(sys.argv) < 2:

@@ -7,7 +7,6 @@ class Gallery:
     image_exts = ["jpg", "jpeg", "png", "gif"]
     video_exts = ["3gp", "mov", "avi", "mpeg4", "mpg4", "mp4", "mkv"]
     thumbs_dir_components = [".thumbnails", "normal"]
-    html_filename = "index.htm"
     thumbs_size = 128,128
     def __init__(self, path, log_freq = 0):
         """ path is the root directory where all the media files and subdirectories are to be found
@@ -136,22 +135,16 @@ class Gallery:
         for i in self.galleries:
             result += "%s" %i
         return result
-    def get_html_path(self):
-        return os.path.join(self.path, self.html_filename)
     def get_html(self):
         def line(text):
             return text + "\n"
         def write_header():
-            pspath = [os.pardir] * len(self.path.split(os.sep)) + ["ps"]
-            ps = os.path.join(*pspath)
             result = ""
             result += line("<html><head><title>Gallery for %s</title>" %self.path)
-            result += line('<link href="%s/photoswipe.css" type="text/css" rel="stylesheet" />' %ps)
-            result += line('<script type="text/javascript" src="%s/lib/klass.min.js"></script>' %ps)
-            result += line('<script type="text/javascript" src="%s/code.photoswipe-3.0.5.min.js"></script>' %ps)
-            result += line('<style media="screen" type="text/css">')
-            result += line(open("pyrellag.css", "r").read())
-            result += line('</style>')
+            result += line('<link href="/file/ps/photoswipe.css" type="text/css" rel="stylesheet" />')
+            result += line('<link href="/file/pyrellag.css" type="text/css" rel="stylesheet" />')
+            result += line('<script type="text/javascript" src="/file/ps/lib/klass.min.js"></script>')
+            result += line('<script type="text/javascript" src="/file/ps/code.photoswipe-3.0.5.min.js"></script>')
             result += line("</head><body>")
             return result
         def write_footer():
@@ -176,18 +169,18 @@ class Gallery:
         def write_subgalleries():
             result = ""
             result += line("<div id='subgalleries'>")
-            paths = self.path.split(os.sep)
-            for i in range(0, len(paths)-1):
-                level = len(paths) - 1 - i
-                path = ""
-                for j in range(0, level):
-                    path = os.path.join(path, os.pardir)
-                result += line("<a class='hlable' href='%s'>%s</a> / " %(os.path.join(path, self.html_filename), paths[i]))
-            result += line("%s (%s):" %(paths[-1], len(self.files)))
-            if len(self.galleries) > 0:
+            paths = []
+            temp_paths = self.path.split(os.sep)
+            for k,v in enumerate(temp_paths):
+                cur_path = temp_paths[:k+1]
+                paths.append(os.path.join(*cur_path))
+            for path in paths[:-1]:
+                result += line("<a class='hlable' href='/gallery/%s'>%s</a> / " %(path, os.path.basename(path)))
+            result += line("%s (%s):" %(os.path.basename(paths[-1]), len(self.files)))
+            if len(self.gallery_paths) > 0:
                 result += line("<ul style='margin: 0px'>")
-                for g in self.galleries:
-                    result += line("<a class='subgallery' href='%s'><li class='hlable'>%s (%s)</li></a>" %(os.path.join(os.path.basename(os.path.normpath(g.path)), self.html_filename), os.path.basename(os.path.normpath(g.path)), len(g.files)))
+                for path in [os.path.normpath(os.path.join(self.path, path)) for path in self.gallery_paths]:
+                    result += line("<a class='subgallery' href='/gallery/%s'><li class='hlable'>%s</li></a>" %(path, os.path.basename(path)))
                 result += line("</ul>")
             result += line("</div>")
             return result
@@ -195,12 +188,12 @@ class Gallery:
             result = ""
             result += line("<div id='Gallery' style='text-align:center;'>")
             for cur_file in sorted(self.files):
-                thumb_path = os.path.relpath(self.get_thumb_path(cur_file), self.path)
-                file_path = os.path.relpath(cur_file, self.path)
+                thumb_path = os.path.relpath(self.get_thumb_path(cur_file))
+                file_path = os.path.relpath(cur_file)
                 if self.is_image(file_path):
-                    result += line("<a class='photo' href='%s'><img class='image' src='%s' alt='Filename: %s'/></a>" %(file_path, thumb_path, file_path))
+                    result += line("<a class='photo' href='/file/%s'><img class='image' src='/file/%s' alt='Filename: %s'/></a>" %(file_path, thumb_path, file_path))
                 elif self.is_video(file_path):
-                    result += line("<a href='%s'><img class='image' src='%s' alt='Filename: %s'/></a>" %(file_path, thumb_path, file_path))
+                    result += line("<a href='/file/%s'><img class='image' src='/file/%s' alt='Filename: %s'/></a>" %(file_path, thumb_path, file_path))
                 else:
                     raise UnsupportedFormatError()
             result += line("</div>")

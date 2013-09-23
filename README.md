@@ -33,14 +33,15 @@ Features
 Instructions
 ------------
 
+Dependencies:
+ - Install python-flask. E.g. `$ pip install --user flask`
 Quick set up:
- - Create a directory named `my_gallery`, and copy/symlink all your media directories there. Any nesting level is supported (as long as your filesystem can handle it).
- - Run `./scan_gallery.py my_gallery`
- - Open your `my_gallery` directory in your web browser. You can quickly fire up a web server using `python -m SimpleHTTPServer`
+ - Create a directory named `data`, and put all your media directories there (symlink is fine too).
+ - Run `$ ./pyrellag.py`
 
 
-Autoscan:
- - Create a cronjob that runs `./scan_gallery.py my_gallery` with the appropriate owner and permissions.
+Offline thumbnails generation:
+ - Create a cronjob that runs `./scan_gallery.py data` with the appropriate owner and permissions.
 
 
 ToDo
