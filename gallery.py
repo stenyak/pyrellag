@@ -1,6 +1,6 @@
 # Copyright (c) 2013, Bruno Gonzalez <stenyak@stenyak.com>. This software is licensed under the Affero General Public License version 3 or later.  See the LICENSE file.
 
-import sys, os, re, hashlib, Image, shutil, PngImagePlugin
+import sys, os, re, hashlib, shutil, Image, PngImagePlugin, urllib
 from stats import Stats
 from color import Color
 class Gallery:
@@ -175,12 +175,12 @@ class Gallery:
                 cur_path = temp_paths[:k+1]
                 paths.append(os.path.join(*cur_path))
             for path in paths[:-1]:
-                result += line("<a class='hlable' href='/gallery/%s'>%s</a> / " %(path, os.path.basename(path)))
+                result += line("<a class='hlable' href='/gallery/%s'>%s</a> / " %(urllib.quote(path), os.path.basename(path)))
             result += line("%s (%s):" %(os.path.basename(paths[-1]), len(self.files)))
             if len(self.gallery_paths) > 0:
                 result += line("<ul style='margin: 0px'>")
                 for path in [os.path.normpath(os.path.join(self.path, path)) for path in sorted(self.gallery_paths)]:
-                    result += line("<a class='subgallery' href='/gallery/%s'><li class='hlable'>%s</li></a>" %(path, os.path.basename(path)))
+                    result += line("<a class='subgallery' href='/gallery/%s'><li class='hlable'>%s</li></a>" %(urllib.quote(path), os.path.basename(path)))
                 result += line("</ul>")
             result += line("</div>")
             return result
@@ -191,7 +191,7 @@ class Gallery:
                 thumb_path = os.path.relpath(self.get_thumb_path(cur_file))
                 file_path = os.path.relpath(cur_file)
                 if self.is_image(file_path):
-                    result += line("<a class='photo' href='/file/%s'><img class='image' src='/file/%s' alt='Filename: %s'/></a>" %(file_path, thumb_path, file_path))
+                    result += line("<a class='photo' href='/file/%s'><img class='image' src='/file/%s' alt='Filename: %s'/></a>" %(urllib.quote(file_path), urllib.quote(thumb_path), file_path))
                 elif self.is_video(file_path):
                     result += line("<a href='/file/%s'><img class='image' src='/file/%s' alt='Filename: %s'/></a>" %(file_path, thumb_path, file_path))
                 else:
