@@ -8,13 +8,15 @@ class Gallery:
     video_exts = ["3gp", "mov", "avi", "mpeg4", "mpg4", "mp4", "mkv"]
     thumbs_dir_components = [".thumbnails", "normal"]
     thumbs_size = 128,128
-    def __init__(self, path, log_freq = 0):
+    def __init__(self, path, log_freq = 0, follow_freedesktop_standard = False):
         """ path is the root directory where all the media files and subdirectories are to be found
-            log_freq specifies the logging interval during the scan process (will log every log_freq-th scanned file). use a <= 0 value to disable logging """
+            log_freq specifies the logging interval during the scan process (will log every log_freq-th scanned file). use a <= 0 value to disable logging
+            follow_freedesktop_standard means the thumbnails are readable by other freedesktop-compliant software, but the thumbnails are dependent on the absolute path to the media files (therefore renaming your media folder means having to rebuild everything)"""
         self.stats = Stats()
         self.galleries = []
         self.path = path
         self.log_freq = log_freq
+        self.follow_freedesktop_standard = follow_freedesktop_standard
     def should_log(self, number):
         if self.log_freq <= 0: return False
         return number % self.log_freq == 0
@@ -120,7 +122,10 @@ class Gallery:
         extension = os.path.splitext(path)[1][1:].lower()
         return extension in self.image_exts
     def get_uri(self, abs_path):
-        return "file://" + abs_path
+        if self.follow_freedesktop_standard:
+            return "file://" + abs_path
+        else:
+            return os.path.basename(abs_path)
     def get_checksum(self, abs_path):
         return hashlib.md5(self.get_uri(abs_path)).hexdigest()
     def get_thumb_path(self, f):
