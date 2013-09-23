@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Gallery for {{ path }}</title>
+        <link href="/file/ps/photoswipe.css" type="text/css" rel="stylesheet" />
+        <link href="/file/pyrellag.css" type="text/css" rel="stylesheet" />
+        <script type="text/javascript" src="/file/ps/lib/klass.min.js"></script>
+        <script type="text/javascript" src="/file/ps/code.photoswipe-3.0.5.min.js"></script>
+    </head>
+    <body>
+        <div id='subgalleries'>
+            {% for i in parents %}
+                <a class='hlable' href='/gallery/{{ i.key|urlencode }}'>{{ i.value }}</a> / 
+            {% endfor %}
+            {{ basename }} ({{ nfiles }})
+
+                <ul style='margin: 0px'>
+                    {% for i in galleries %}
+                    <a class='subgallery' href='/gallery/{{ i.key|urlencode }}'><li class='hlable'>{{ i.value }}</li></a>
+                    {% endfor %}
+                </ul>
+        </div>
+        <a href='https://github.com/stenyak/pyrellag'><div class='logo'>powered by<br/><b>Pyrellag!</b></div></a>
+        <div style='clear:both'/>
+        <div id='Gallery' style='text-align:center;'>
+            {% for i in files %}
+                {% if i.type == "image" %}
+                <a class='photo' href='/file/{{ i.file_path|urlencode }}'><img class='image' src='/file/{{ i.thumb_path|urlencode }}' alt='Filename: {{ i.file_path }}'/></a>
+                {% elif i.type == "video" %}
+                <a href='/file/{{ i.file_path|urlencode }}'><img class='image' src='/file/{{ i.thumb_path|urlencode }}' alt='Filename: {{ i.file_path }}'/></a>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <script>
+            document.addEventListener(
+                'DOMContentLoaded',
+                function()
+                {
+                    var myPhotoSwipe = Code.PhotoSwipe.attach( window.document.querySelectorAll('#Gallery a.photo'), { enableMouseWheel: true , enableKeyboard: true, imageScaleMethod: 'fitNoUpscale', loop: false } );
+                },
+                false
+            );
+        </script>
+    </body>
+</html>

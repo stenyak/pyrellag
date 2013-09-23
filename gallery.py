@@ -140,75 +140,28 @@ class Gallery:
         for i in self.galleries:
             result += "%s" %i
         return result
-    def get_html(self):
-        def line(text):
-            return text + "\n"
-        def write_header():
-            result = ""
-            result += line("<html><head><title>Gallery for %s</title>" %self.path)
-            result += line('<link href="/file/ps/photoswipe.css" type="text/css" rel="stylesheet" />')
-            result += line('<link href="/file/pyrellag.css" type="text/css" rel="stylesheet" />')
-            result += line('<script type="text/javascript" src="/file/ps/lib/klass.min.js"></script>')
-            result += line('<script type="text/javascript" src="/file/ps/code.photoswipe-3.0.5.min.js"></script>')
-            result += line("</head><body>")
-            return result
-        def write_footer():
-            result = ""
-            result += line("""
-                <script>
-                    document.addEventListener(
-                        'DOMContentLoaded',
-                        function()
-                        {
-                            var myPhotoSwipe = Code.PhotoSwipe.attach( window.document.querySelectorAll('#Gallery a.photo'), { enableMouseWheel: true , enableKeyboard: true, imageScaleMethod: 'fitNoUpscale', loop: false } );
-                        },
-                        false
-                    );
-                </script>""")
-            result += line("</body></html>")
-            return result
-        def write_logo():
-            result = ""
-            result += line("<a href='https://github.com/stenyak/pyrellag'><div class='logo'>powered by<br/><b>Pyrellag!</b></div></a>")
-            return result
-        def write_subgalleries():
-            result = ""
-            result += line("<div id='subgalleries'>")
-            paths = []
-            temp_paths = self.path.split(os.sep)
-            for k,v in enumerate(temp_paths):
-                cur_path = temp_paths[:k+1]
-                paths.append(os.path.join(*cur_path))
-            for path in paths[:-1]:
-                result += line("<a class='hlable' href='/gallery/%s'>%s</a> / " %(urllib.quote(path), os.path.basename(path)))
-            result += line("%s (%s):" %(os.path.basename(paths[-1]), len(self.files)))
-            if len(self.gallery_paths) > 0:
-                result += line("<ul style='margin: 0px'>")
-                for path in [os.path.normpath(os.path.join(self.path, path)) for path in sorted(self.gallery_paths)]:
-                    result += line("<a class='subgallery' href='/gallery/%s'><li class='hlable'>%s</li></a>" %(urllib.quote(path), os.path.basename(path)))
-                result += line("</ul>")
-            result += line("</div>")
-            return result
-        def write_files():
-            result = ""
-            result += line("<div id='Gallery' style='text-align:center;'>")
-            for cur_file in sorted(self.files):
-                thumb_path = os.path.relpath(self.get_thumb_path(cur_file))
-                file_path = os.path.relpath(cur_file)
-                if self.is_image(file_path):
-                    result += line("<a class='photo' href='/file/%s'><img class='image' src='/file/%s' alt='Filename: %s'/></a>" %(urllib.quote(file_path), urllib.quote(thumb_path), file_path))
-                elif self.is_video(file_path):
-                    result += line("<a href='/file/%s'><img class='image' src='/file/%s' alt='Filename: %s'/></a>" %(file_path, thumb_path, file_path))
-                else:
-                    raise UnsupportedFormatError()
-            result += line("</div>")
-            return result
-        result = ""
-        result += write_header()
-        result += write_logo()
-        result += write_subgalleries()
-        result += line("<div style='clear:both'/>")
-        result += write_files()
-        result += write_footer()
-        return result
-
+    def get_parents(self):
+        parents = []
+        paths = []
+        temp_paths = self.path.split(os.sep)
+        for k,v in enumerate(temp_paths):
+            cur_path = temp_paths[:k+1]
+            paths.append(os.path.join(*cur_path).decode("utf-8"))
+        for path in paths[:-1]:
+            parents.append( {"key": path, "value": os.path.basename(path)} )
+        return parents
+    def get_galleries(self):
+        galleries = []
+        for path in [os.path.normpath(os.path.join(self.path, path)).decode("utf-8") for path in sorted(self.gallery_paths)]:
+            galleries.append( {"key": path, "value": os.path.basename(path)} )
+        return galleries
+    def get_files(self):
+        files = []
+        for cur_file in sorted(self.files):
+            thumb_path = os.path.relpath(self.get_thumb_path(cur_file))
+            file_path = os.path.relpath(cur_file)
+            if self.is_image(file_path):
+                files.append( {"type": "image", "file_path": file_path.decode("utf-8"), "thumb_path": thumb_path.decode("utf-8")} )
+            elif self.is_video(file_path):
+                files.append( {"type": "video", "file_path": file_path.decode("utf-8"), "thumb_path": thumb_path.decode("utf-8")} )
+        return files

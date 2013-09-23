@@ -2,7 +2,7 @@
 # Copyright (c) 2013, Bruno Gonzalez <stenyak@stenyak.com>. This software is licensed under the Affero General Public License version 3 or later.  See the LICENSE file.
 
 import os, urllib
-from flask import Flask, redirect, send_file
+from flask import Flask, redirect, send_file, render_template
 from gallery import Gallery
 app = Flask(__name__)
 
@@ -19,7 +19,7 @@ def show_gallery(path):
     path = urllib.unquote(path).encode("utf-8")
     g = Gallery(path)
     g.populate()
-    return g.get_html()
+    return render_template("gallery.html", path = g.path.decode("utf-8"), parents = g.get_parents(), basename = os.path.basename(g.path.decode("utf-8")), nfiles = len(g.files), galleries = g.get_galleries(), files = g.get_files())
 
 @app.route('/file/<path:path>')
 def show_image(path):
