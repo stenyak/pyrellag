@@ -9,8 +9,9 @@
     </head>
     <body>
         <div id='subgalleries'>
+            Gallery:
             {% for i in parents %}
-                <a class='hlable' href='/gallery/{{ i.key|urlencode }}'>{{ i.value }}</a> / 
+                <a class='hlable' href='/gallery/{{ i.key|urlencode }}'>{{ i.value }}</a> /
             {% endfor %}
             {{ basename }} ({{ nfiles }})
 
