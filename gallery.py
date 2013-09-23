@@ -169,7 +169,7 @@ class Gallery:
             return result
         def write_logo():
             result = ""
-            result += line("<a clas='logo' href='https://github.com/stenyak/pyrellag'><div class='logo'>powered by<br/><b>Pyrellag!</b></div></a>")
+            result += line("<a href='https://github.com/stenyak/pyrellag'><div class='logo'>powered by<br/><b>Pyrellag!</b></div></a>")
             return result
         def write_subgalleries():
             result = ""
