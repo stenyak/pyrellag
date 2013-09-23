@@ -20,7 +20,7 @@ class Gallery:
         return number % self.log_freq == 0
     def populate(self):
         def get_galleries(path):
-            return [d for d in os.listdir(path) if os.path.isdir(os.path.join(self.path, d)) and d != self.thumbs_dir_components[0]]
+            return [d for d in os.listdir(path) if os.path.isdir(os.path.join(self.path, d)) and not d.startswith(".")] # ignore hidden directories
         def get_filesystem_files(path):
             regexp = ".*\.(%s)$" %"|".join(self.image_exts + self.video_exts) #match any extension...
             r = re.compile(regexp, re.IGNORECASE) #...case insensitively
