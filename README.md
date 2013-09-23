@@ -20,22 +20,26 @@ Gallery view:
 Photo view:
 ![alt tag](https://raw.github.com/stenyak/pyrellag/master/photo_view.png)
 
+
+Video view:
+![alt tag](https://raw.github.com/stenyak/pyrellag/master/video_view.png)
+
 Features
 --------
 
- - Support for image files (jpg, jpeg, png and gif).
- - Support for video files (3gp, mov, avi, mpeg4, mpg4, mp4 and mkv).
+ - Support for image files: jpg, jpeg, png and gif.
+ - Support for video files: 3gp, mov, avi, mpeg4, mpg4, mp4 and mkv (embedded player if supported by browser).
  - Use your keyboard or mouse wheel for faster browsing.
  - Designed to work straight from your existing filesystem: no need to re-arrange directories into any special structure, or "upload" stuff anywhere, or set up any stinkin database.
- - Automatic thumbnail management, following **freedesktop.org Thumbnail Managing Standard**.
+ - On-the-fly or off-line thumbnail generation.
+ - Can follow **freedesktop.org Thumbnail Managing Standard** if desired.
  - Very light on the CPU and network.
 
 Instructions
 ------------
 
-Dependencies:
- - Install python-flask. E.g. `$ pip install --user flask`
 Quick set up:
+ - Install python-flask. E.g. `$ pip install --user flask`
  - Create a directory named `data`, and put all your media directories there (symlink is fine too).
  - Run `$ ./pyrellag.py`
 
@@ -48,7 +52,8 @@ ToDo
 ----
 
 Some stuff I'd like to do in the future:
- - Support for user & group access permissions.
+ - Support for AuthN via openid (goog, fb, etc).
+ - Support for AuthZ (user and group access permissions, etc).
  - Use an animated gif with select frames for video thumbnails.
 
 Contact
