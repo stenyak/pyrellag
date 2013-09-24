@@ -13,7 +13,6 @@ def recursive_populate(path, log_freq):
     stats = gallery.stats.clone()
     for g in gallery.gallery_paths:
         subgallery, substats = recursive_populate(os.path.join(gallery.path, g), log_freq)
-        gallery.galleries.append(subgallery)
         stats.increase(substats)
     return gallery, stats
 

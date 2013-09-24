@@ -13,7 +13,6 @@ class Gallery:
             log_freq specifies the logging interval during the scan process (will log every log_freq-th scanned file). use a <= 0 value to disable logging
             follow_freedesktop_standard means the thumbnails are readable by other freedesktop-compliant software, but the thumbnails are dependent on the absolute path to the media files (therefore renaming your media folder means having to rebuild everything)"""
         self.stats = Stats()
-        self.galleries = []
         self.path = path
         self.log_freq = log_freq
         self.follow_freedesktop_standard = follow_freedesktop_standard
@@ -137,7 +136,7 @@ class Gallery:
         return self.__str__()
     def __str__(self):
         result = "%s: %s\n" %(self.path, self.files)
-        for i in self.galleries:
+        for i in self.gallery_paths:
             result += "%s" %i
         return result
     def get_parents(self):
