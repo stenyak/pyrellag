@@ -9,11 +9,18 @@
             Video: <a class='hlable' href='/gallery/{{ path|urlencode }}'>{{ path }}</a> / <a class='hlable' href="/file/{{ video_path|urlencode }}">{{ video_basename }}</a>
         </div>
         <a href='https://github.com/stenyak/pyrellag'><div class='logo'>powered by<br/><b>Pyrellag!</b></div></a>
+        {% if user %}
+            <div style="color: #ffffff">Logged in as {{ user.name }} (<a href="/logout">log out</a>)</div>
+        {% else %}
+            <div style="color: #ffffff">No permission to view video, please <a href="/login">log in</a>.</div>
+        {% endif %}
         <div style='clear:both'/>
         <div style='text-align:center;'>
-            <video controls autoplay>
-                <source src="/file/{{ video_path|urlencode }}"/>
-            </video>
+            {% if user %}
+                <video controls autoplay>
+                    <source src="/file/{{ video_path|urlencode }}"/>
+                </video>
+            {% endif %}
         </div>
     </body>
 </html>
