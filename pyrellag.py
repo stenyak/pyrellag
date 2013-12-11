@@ -170,13 +170,18 @@ def show_video(path):
     path = os.path.dirname(video_path)
     return render_template("video.html", video_path = video_path, path = path, video_basename = os.path.basename(video_path), user = user)
 
-@app.route('/file/<path:path>')
-def show_image(path):
+@app.route('/data/<path:path>')
+def show_data(path):
     global g
     user = g.user
     if user is None:
         abort(401)
     path = urllib.unquote(path).encode("utf-8")
+    return send_file(path)
+
+@app.route('/static/<path:path>')
+def show_static(path):
+    path = os.path.join("static", urllib.unquote(path).encode("utf-8"))
     return send_file(path)
 
 if __name__ == '__main__':
