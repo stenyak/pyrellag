@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2013, Bruno Gonzalez <stenyak@stenyak.com>. This software is licensed under the Affero General Public License version 3 or later.  See the LICENSE file.
 
+from functools import wraps
 from flask import request, g, session, flash, url_for, abort
 from flask_openid import OpenID
 
@@ -42,6 +43,18 @@ class User(Base):
         self.email = email
         self.openid = openid
 
+def render_time(fn):
+    @wraps(fn)
+    def inner(*args, **kwargs):
+        start = time.time()
+        result = fn(*args, **kwargs)
+        end = time.time()
+        try:
+            return result.replace("TTTTIME", "%.4f" %(end-start))
+        except AttributeError:
+            return result
+    return inner
+
 @app.before_request
 def before_request():
     g.user = None
@@ -64,6 +77,7 @@ def index():
     return redirect("/gallery/data")
 
 @app.route('/login', methods=['GET', 'POST'])
+@render_time
 @oid.loginhandler
 def login():
     """Does the login via OpenID.  Has to call into `oid.try_login` to start the OpenID machinery.  """
@@ -89,6 +103,7 @@ def create_or_login(resp):
 
 
 @app.route('/create-profile', methods=['GET', 'POST'])
+@render_time
 def create_profile():
     """If this is the user's first login, the create_or_login function
     will redirect here so that the user can set up his profile.
@@ -111,6 +126,7 @@ def create_profile():
 
 
 @app.route('/profile', methods=['GET', 'POST'])
+@render_time
 def edit_profile():
     """Updates a profile"""
     user = g.user
@@ -146,21 +162,19 @@ def logout():
     return redirect(oid.get_next_url())
 
 @app.route('/gallery/<path:path>')
+@render_time
 def show_gallery(path):
     global g
     user = g.user
-    start = time.time()
     path = urllib.unquote(path).encode("utf-8")
     check_jailed_path(path, "data")
     g = Gallery(path)
     if user is not None:
         g.populate()
-    result = render_template("gallery.html", path = g.path.decode("utf-8"), parents = g.get_parents(), basename = os.path.basename(g.path.decode("utf-8")), nfiles = len(g.files), galleries = g.get_galleries(), files = g.get_files(), user = user)
-    end = time.time()
-    result = result.replace("TTTTIME", "%.4f" %(end-start))
-    return result
+    return render_template("gallery.html", path = g.path.decode("utf-8"), parents = g.get_parents(), basename = os.path.basename(g.path.decode("utf-8")), nfiles = len(g.files), galleries = g.get_galleries(), files = g.get_files(), user = user)
 
 @app.route('/video/<path:path>')
+@render_time
 def show_video(path):
     global g
     user = g.user
