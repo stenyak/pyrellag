@@ -150,6 +150,7 @@ def show_gallery(path):
     user = g.user
     start = time.time()
     path = urllib.unquote(path).encode("utf-8")
+    check_jailed_path(path, "data")
     g = Gallery(path)
     if user is not None:
         g.populate()
@@ -166,7 +167,14 @@ def show_video(path):
         abort(401)
     video_path = urllib.unquote(path).encode("utf-8")
     path = os.path.dirname(video_path)
+    check_jailed_path(path, "data")
     return render_template("video.html", video_path = video_path, path = path, video_basename = os.path.basename(video_path), user = user)
+
+def check_jailed_path(path, jail_path):
+    if os.path.normpath(path) == jail_path:
+        return
+    if not os.path.normpath(path).startswith(jail_path + os.sep):
+        raise Exception("Permission denied, '%s' is outside '%s'" %(path, jail_path))
 
 @app.route('/data/<path:path>')
 def show_data(path):
@@ -175,11 +183,13 @@ def show_data(path):
     if user is None:
         abort(401)
     path = urllib.unquote(path).encode("utf-8")
+    check_jailed_path(path, "data")
     return send_file(path)
 
 @app.route('/static/<path:path>')
 def show_static(path):
     path = os.path.join("static", urllib.unquote(path).encode("utf-8"))
+    check_jailed_path(path, "static")
     return send_file(path)
 
 if __name__ == '__main__':
