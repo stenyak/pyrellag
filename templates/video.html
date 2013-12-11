@@ -2,11 +2,11 @@
 <html>
     <head>
         <title>Video: {{ video_path }}</title>
-        <link href="/static/pyrellag.css" type="text/css" rel="stylesheet" />
+        <link href="{{ url_for('show_static', path="pyrellag.css") }}" type="text/css" rel="stylesheet" />
     </head>
     <body>
         <div id='subgalleries'>
-            Video: <a class='hlable' href='/gallery/{{ path|urlencode }}'>{{ path }}</a> / <a class='hlable' href="/data/{{ video_path|urlencode }}">{{ video_basename }}</a>
+            Video: <a class='hlable' href='{{ url_for('show_gallery', path=path|urlencode) }}'>{{ path }}</a> / <a class='hlable' href="{{ url_for('show_data', path=video_path|urlencode) }}">{{ video_basename }}</a>
         </div>
         <a href='https://github.com/stenyak/pyrellag'><div class='logo'>powered by<br/><b>Pyrellag!</b></div></a>
         {% if user %}
@@ -18,7 +18,7 @@
         <div style='text-align:center;'>
             {% if user %}
                 <video controls autoplay>
-                    <source src="/data/{{ video_path|urlencode }}"/>
+                    <source src="{{ url_for('show_data', path=video_path|urlencode) }}"/>
                 </video>
             {% endif %}
         </div>

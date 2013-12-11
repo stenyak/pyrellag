@@ -2,22 +2,22 @@
 <html>
     <head>
         <title>Gallery for {{ path }}</title>
-        <link href="/static/ps/photoswipe.css" type="text/css" rel="stylesheet" />
-        <link href="/static/pyrellag.css" type="text/css" rel="stylesheet" />
-        <script type="text/javascript" src="/static/ps/lib/klass.min.js"></script>
-        <script type="text/javascript" src="/static/ps/code.photoswipe-3.0.5.min.js"></script>
+        <link href="{{ url_for('show_static', path="ps/photoswipe.css") }}" type="text/css" rel="stylesheet" />
+        <link href="{{ url_for('show_static', path="pyrellag.css") }}" type="text/css" rel="stylesheet" />
+        <script type="text/javascript" src="{{ url_for('show_static', path="ps/lib/klass.min.js") }}"></script>
+        <script type="text/javascript" src="{{ url_for('show_static', path="ps/code.photoswipe-3.0.5.min.js") }}"></script>
     </head>
     <body>
         <div id='subgalleries'>
             Gallery:
             {% for i in parents %}
-                <a class='hlable' href='/gallery/{{ i.key|urlencode }}'>{{ i.value }}</a> /
+                <a class='hlable' href='{{ url_for('show_gallery', path=i.key|urlencode) }}'>{{ i.value }}</a> /
             {% endfor %}
             {{ basename }} ({{ nfiles }})
 
                 <ul style='margin: 0px'>
                     {% for i in galleries %}
-                    <a class='subgallery' href='/gallery/{{ i.key|urlencode }}'><li class='hlable'>{{ i.value }}</li></a>
+                    <a class='subgallery' href='{{ url_for('show_gallery', path=i.key|urlencode) }}'><li class='hlable'>{{ i.value }}</li></a>
                     {% endfor %}
                 </ul>
         </div>
@@ -33,9 +33,9 @@
         <div id='Gallery' style='text-align:center;'>
             {% for i in files %}
                 {% if i.type == "image" %}
-                <a class='photo' href='/data/{{ i.file_path|urlencode }}'><img class='image' src='/data/{{ i.thumb_path|urlencode }}' alt='Filename: {{ i.file_path }}'/></a>
+                <a class='photo' href='{{ url_for('show_data', path=i.file_path|urlencode) }}'><img class='image' src='{{ url_for('show_data', path=i.thumb_path|urlencode) }}' alt='Filename: {{ i.file_path }}'/></a>
                 {% elif i.type == "video" %}
-                <a href='/video/{{ i.file_path|urlencode }}'><img class='image' src='/data/{{ i.thumb_path|urlencode }}' alt='Filename: {{ i.file_path }}'/></a>
+                <a href='{{ url_for('show_video', path=i.file_path|urlencode) }}'><img class='image' src='{{ url_for('show_data', path=i.thumb_path|urlencode) }}' alt='Filename: {{ i.file_path }}'/></a>
                 {% endif %}
             {% endfor %}
         </div>
