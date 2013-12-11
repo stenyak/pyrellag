@@ -24,6 +24,9 @@ Photo view:
 Video view:
 ![alt tag](https://raw.github.com/stenyak/pyrellag/master/video_view.png)
 
+Login dialog:
+![alt tag](https://raw.github.com/stenyak/pyrellag/master/login_dialog.png)
+
 Features
 --------
 
