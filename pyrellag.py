@@ -57,7 +57,7 @@ def after_request(response):
 
 @app.route('/favicon.ico')
 def favicon():
-    return send_file("favicon.ico")
+    return send_file("static/favicon.ico")
 
 @app.route('/')
 def index():
