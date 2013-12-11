@@ -39,9 +39,9 @@ Instructions
 ------------
 
 Quick set up:
- - Install python-flask. E.g. `$ pip install --user flask`
  - Create a directory named `data`, and put all your media directories there (symlink is fine too).
- - Run `$ ./pyrellag.py`
+ - Install the required dependencies: `$ ./get_libs.sh`
+ - Run the gallery server: `$ ./pyrellag.py`
 
 
 Offline thumbnails generation:
