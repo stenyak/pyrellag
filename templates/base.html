@@ -8,12 +8,16 @@
     <body>
         {% block first %}{% endblock %}
         <a href='https://github.com/stenyak/pyrellag'><div class='logo'>powered by<br/><b>Pyrellag!</b></div></a>
-        <div id='time'>Generation time: TTTTIMEs</div>
-        {% if user %}
-            <div style="color: #ffffff">Logged in as {{ user.name }} (<a href="{{ url_for('edit_profile') }}">profile</a> | <a href="{{ url_for('logout') }}">log out</a>)</div>
-        {% else %}
-            <div style="color: #ffffff">No permission (<a href="{{ url_for('login') }}">log in</a>)</div>
-        {% endif %}
+        <div class="bg topbar">
+                {% if user %}
+                    <a class="hlable" href="{{ url_for('edit_profile') }}">{{ user.name }}</a>
+                    |
+                    <a  class="hlable" href="{{ url_for('logout') }}">log out</a>
+                {% else %}
+                    <a class="hlable" href="{{ url_for('login') }}">log in</a>
+                {% endif %}
+        </div>
+        <div class='time'>render time: TTTTIMEs</div>
         <div style='clear:both'/>
         {% block body %}{% endblock %}
     </body>

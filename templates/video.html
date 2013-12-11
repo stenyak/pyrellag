@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Video: {{ video_path }}{% endblock %}
 {% block first %}
-    <div id='subgalleries'>
+    <div class='bg subgalleries'>
         Video: <a class='hlable' href='{{ url_for('show_gallery', path=path|urlencode) }}'>{{ path }}</a> / <a class='hlable' href="{{ url_for('show_data', path=video_path|urlencode) }}">{{ video_basename }}</a>
     </div>
 {% endblock %}

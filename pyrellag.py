@@ -113,12 +113,13 @@ def create_profile():
 @app.route('/profile', methods=['GET', 'POST'])
 def edit_profile():
     """Updates a profile"""
-    if g.user is None:
+    user = g.user
+    if user is None:
         abort(401)
-    form = dict(name=g.user.name, email=g.user.email)
+    form = dict(name=user.name, email=user.email)
     if request.method == 'POST':
         if 'delete' in request.form:
-            db_session.delete(g.user)
+            db_session.delete(user)
             db_session.commit()
             session['openid'] = None
             flash(u'Profile deleted')
@@ -131,11 +132,11 @@ def edit_profile():
             flash(u'Error: you have to enter a valid email address')
         else:
             flash(u'Profile successfully created')
-            g.user.name = form['name']
-            g.user.email = form['email']
+            user.name = form['name']
+            user.email = form['email']
             db_session.commit()
-            return redirect(url_for('edit_profile'))
-    return render_template('edit_profile.html', form=form)
+            return redirect(url_for('edit_profile', user=user))
+    return render_template('edit_profile.html', form=form, user=user)
 
 
 @app.route('/logout')
