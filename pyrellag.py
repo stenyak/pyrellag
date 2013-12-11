@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2013, Bruno Gonzalez <stenyak@stenyak.com>. This software is licensed under the Affero General Public License version 3 or later.  See the LICENSE file.
 
+import json
 from functools import wraps
 from flask import request, g, session, flash, url_for, abort
 from flask_openid import OpenID
@@ -119,6 +120,9 @@ def create_or_login(resp):
         return redirect(oid.get_next_url())
     return redirect(url_for('create_profile', next=oid.get_next_url(), name=resp.fullname or resp.nickname, email=resp.email))
 
+def get_config():
+    with open("config.json", "r") as f:
+        return json.loads(f.read())
 
 @app.route('/create-profile', methods=['GET', 'POST'])
 @render_time
