@@ -14,6 +14,8 @@ class Gallery:
             follow_freedesktop_standard means the thumbnails are readable by other freedesktop-compliant software, but the thumbnails are dependent on the absolute path to the media files (therefore renaming your media folder means having to rebuild everything)"""
         self.stats = Stats()
         self.path = path
+        self.files = []
+        self.gallery_paths = []
         self.log_freq = log_freq
         self.follow_freedesktop_standard = follow_freedesktop_standard
     def should_log(self, number):

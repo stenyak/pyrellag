@@ -151,11 +151,9 @@ def show_gallery(path):
     start = time.time()
     path = urllib.unquote(path).encode("utf-8")
     g = Gallery(path)
-    g.populate()
-    if user is None:
-        result = render_template("gallery.html", path = g.path.decode("utf-8"), parents = g.get_parents(), basename = os.path.basename(g.path.decode("utf-8")), nfiles = 0, galleries = [], files = [], user = user)
-    else:
-        result = render_template("gallery.html", path = g.path.decode("utf-8"), parents = g.get_parents(), basename = os.path.basename(g.path.decode("utf-8")), nfiles = len(g.files), galleries = g.get_galleries(), files = g.get_files(), user = user)
+    if user is not None:
+        g.populate()
+    result = render_template("gallery.html", path = g.path.decode("utf-8"), parents = g.get_parents(), basename = os.path.basename(g.path.decode("utf-8")), nfiles = len(g.files), galleries = g.get_galleries(), files = g.get_files(), user = user)
     end = time.time()
     result = result.replace("TTTTIME", "%.4f" %(end-start))
     return result
