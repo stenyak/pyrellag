@@ -2,13 +2,26 @@
 {% block title %}Log in{% endblock %}
 {% block body %}
 <div class="bg">
-  <h2>Sign in</h2>
-  <form action="" method=post>
-      OpenID:
-      <input type=text name=openid size=30>
-      <input type=submit value="Sign in">
-      <input type=hidden name=next value="{{ next }}">
-      {% if error %}<br/><hr/><p class=error><strong>Error:</strong> {{ error }}</p>{% endif %}
-  </form>
+  <h2>Log in with:</h2>
+  <div>
+  {% for p in providers %}
+      <div style="margin: 5px; text-align:center; float: left">
+        <form class="openid" action="" method=post>
+            <img src="{{ url_for('show_static', path=p.image) }}" type="text/css" rel="stylesheet" />
+            <br/>
+            <input type=submit value="{{ p.name }}">
+            <input type=hidden name=next value="{{ next }}">
+            <br/>
+            {% if p.hidden %}
+                <input type=hidden name=openid value="{{ p.url }}">
+            {% else %}
+                <input type=text name=openid placeholder="{{ p.url }}">
+            {% endif %}
+        </form>
+      </div>
+  {% endfor %}
+  {% if error %}<br/><hr/><p class=error><strong>Error:</strong> {{ error }}</p>{% endif %}
+  <div style="clear:both"/>
+  </div>
 </div>
 {% endblock %}

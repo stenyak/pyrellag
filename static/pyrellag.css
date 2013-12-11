@@ -75,6 +75,23 @@
 .image:hover {
     background-color: white;
 }
+.openid {
+    padding: 5px;
+
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+
+    background-color: silver;
+
+    transition: background-color 0.2s linear;
+    -moz-transition: background-color 0.2s linear;
+    -webkit-transition: background-color 0.2s linear;
+    -ms-transition: background-color 0.2s linear;
+}
+.openid:hover {
+    background-color: white;
+}
 body {
     overflow-y: scroll;
     overflow-x: hidden;

@@ -76,6 +76,24 @@ def favicon():
 def index():
     return redirect("/gallery/data")
 
+def get_openid_providers():
+    class OpenIdProvider():
+        def __init__(self, name, url, hidden=True):
+            self.name = name
+            self.url = url
+            self.image = "openid/" + name.replace(" ", "").lower() + ".png"
+            self.hidden = hidden
+    return [
+    OpenIdProvider("Google", "https://www.google.com/accounts/o8/id"),
+    OpenIdProvider("Yahoo", "yahoo.com"),
+    OpenIdProvider("WordPress", "Your WordPress blog url", False),
+    OpenIdProvider("Flickr", "flickr.com"),
+    OpenIdProvider("Stack Exchange", "https://openid.stackexchange.com"),
+    OpenIdProvider("Blogger", "Your Blogger blog url", False),
+    OpenIdProvider("LiveJournal", "Your LiveJournal blog url", False),
+    OpenIdProvider("OpenID", "Your custom OpenID url", False)
+    ]
+
 @app.route('/login', methods=['GET', 'POST'])
 @render_time
 @oid.loginhandler
@@ -88,7 +106,7 @@ def login():
         openid = request.form.get('openid')
         if openid:
             return oid.try_login(openid, ask_for=['email', 'fullname', 'nickname'])
-    return render_template('login.html', next=oid.get_next_url(), error=oid.fetch_error())
+    return render_template('login.html', next=oid.get_next_url(), error=oid.fetch_error(), providers=get_openid_providers())
 
 @oid.after_login
 def create_or_login(resp):
