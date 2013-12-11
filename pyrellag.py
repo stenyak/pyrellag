@@ -144,7 +144,7 @@ def create_profile():
             db_session.add(User(name, email, session['openid']))
             db_session.commit()
             return redirect(oid.get_next_url())
-    return render_template('create_profile.html', next_url=oid.get_next_url())
+    return render_template('create_profile.html', next_url=oid.get_next_url(), config=get_config())
 
 
 @app.route('/profile', methods=['GET', 'POST'])

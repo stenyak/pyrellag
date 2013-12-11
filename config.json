@@ -1,2 +1,4 @@
 {
+    "profile_creation_enabled": true,
+    "admin_email": "admin@example.com"
 }
