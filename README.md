@@ -29,6 +29,7 @@ Features
 
  - Support for image files: jpg, jpeg, png and gif.
  - Support for video files: 3gp, mov, avi, mpeg4, mpg4, mp4 and mkv (embedded player if supported by browser).
+ - Support for AuthN via openid (goog, yahoo, etc).
  - Use your keyboard or mouse wheel for faster browsing.
  - Designed to work straight from your existing filesystem: no need to re-arrange directories into any special structure, or "upload" stuff anywhere, or set up any stinkin database.
  - On-the-fly or off-line thumbnail generation.
@@ -52,7 +53,6 @@ ToDo
 ----
 
 Some stuff I'd like to do in the future:
- - Support for AuthN via openid (goog, fb, etc).
  - Support for AuthZ (user and group access permissions, etc).
  - Use an animated gif with select frames for video thumbnails.
 
