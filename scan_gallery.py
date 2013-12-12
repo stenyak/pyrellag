@@ -2,6 +2,7 @@
 # Copyright (c) 2013, Bruno Gonzalez <stenyak@stenyak.com>. This software is licensed under the Affero General Public License version 3 or later.  See the LICENSE file.
 
 import os, sys
+from color import Color
 from config import get_config as cfg
 from gallery import Gallery
 from stats import Stats
