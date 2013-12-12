@@ -12,17 +12,17 @@ def get_config():
 
 class UnsupportedFormatError(Exception): pass
 
-def recursive_populate(path, log_freq):
-    gallery = Gallery(path, log_freq)
+def recursive_populate(path, log_freq, follow_freedektop_standard):
+    gallery = Gallery(path, log_freq, follow_freedektop_standard)
     gallery.populate()
     stats = gallery.stats.clone()
     for g in gallery.gallery_paths:
-        subgallery, substats = recursive_populate(os.path.join(gallery.path, g), log_freq)
+        subgallery, substats = recursive_populate(os.path.join(gallery.path, g), log_freq, follow_freedektop_standard)
         stats.increase(substats)
     return gallery, stats
 
 log_freq = 5
-g, stats = recursive_populate(path="data", log_freq=log_freq)
+g, stats = recursive_populate(path="data", log_freq=log_freq, follow_freedektop_standard = get_config()["follow_freedesktop_standard"])
 if log_freq > 0:
     sys.stdout.write("\n")
 
