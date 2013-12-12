@@ -44,6 +44,21 @@ class User(Base):
         self.email = email
         self.openid = openid
 
+def db_created():
+    try:
+        User.query.filter_by(openid="foobar").first()
+        return True
+    except:
+        return False
+
+def db_required(fn):
+    @wraps(fn)
+    def inner(*args, **kwargs):
+        if not db_created():
+            init_db()
+        return fn(*args, **kwargs)
+    return inner
+
 def render_time(fn):
     @wraps(fn)
     def inner(*args, **kwargs):
@@ -57,6 +72,7 @@ def render_time(fn):
     return inner
 
 @app.before_request
+@db_required
 def before_request():
     g.user = None
     if 'openid' in session:
@@ -109,6 +125,7 @@ def login():
             return oid.try_login(openid, ask_for=['email', 'fullname', 'nickname'])
     return render_template('login.html', next=oid.get_next_url(), error=oid.fetch_error(), providers=get_openid_providers())
 
+@db_required
 @oid.after_login
 def create_or_login(resp):
     """This is called when login with OpenID succeeded and it's not necessary to figure out if this is the users's first login or not.  This function has to redirect otherwise the user will be presented with a terrible URL which we certainly don't want.  """
