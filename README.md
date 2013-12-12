@@ -48,8 +48,8 @@ Quick set up:
  - Run the gallery server: `$ ./pyrellag.py`
 
 
-Offline thumbnails generation:
- - Create a cronjob that runs `./scan_gallery.py data` with the appropriate owner and permissions.
+Offline thumbnails generation (this is optional, only if you want to manually trigger the update of all thumbnails):
+ - Run `$ ./scan_gallery.py`
 
 
 ToDo
