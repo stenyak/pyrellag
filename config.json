@@ -1,4 +1,5 @@
 {
     "profile_creation_enabled": true,
+    "profile_db_path": "profile.db",
     "admin_email": "admin@example.com"
 }

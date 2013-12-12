@@ -13,9 +13,14 @@ from sqlalchemy.ext.declarative import declarative_base
 import os, urllib, time
 from flask import Flask, redirect, send_file, render_template
 from gallery import Gallery
+
+def get_config():
+    with open("config.json", "r") as f:
+        return json.loads(f.read())
+
 app = Flask(__name__)
 app.config.update(
-    DATABASE_URI = 'sqlite:///profiles.db',
+    DATABASE_URI = "sqlite:///" + get_config()["profile_db_path"],
     SECRET_KEY = 'development key',
     DEBUG = True
 )
@@ -136,10 +141,6 @@ def create_or_login(resp):
         g.user = user
         return redirect(oid.get_next_url())
     return redirect(url_for('create_profile', next=oid.get_next_url(), name=resp.fullname or resp.nickname, email=resp.email))
-
-def get_config():
-    with open("config.json", "r") as f:
-        return json.loads(f.read())
 
 @app.route('/create-profile', methods=['GET', 'POST'])
 @render_time
