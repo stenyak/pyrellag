@@ -14,18 +14,16 @@ Screenshots
 -----------
 
 Gallery view:
-![alt tag](https://raw.github.com/stenyak/pyrellag/master/gallery_view.png)
-
+![alt tag](https://raw.github.com/stenyak/pyrellag/master/screenshots/gallery_view.png)
 
 Photo view:
-![alt tag](https://raw.github.com/stenyak/pyrellag/master/photo_view.png)
-
+![alt tag](https://raw.github.com/stenyak/pyrellag/master/screenshots/photo_view.png)
 
 Video view:
-![alt tag](https://raw.github.com/stenyak/pyrellag/master/video_view.png)
+![alt tag](https://raw.github.com/stenyak/pyrellag/master/screenshots/video_view.png)
 
 Login dialog:
-![alt tag](https://raw.github.com/stenyak/pyrellag/master/login_dialog.png)
+![alt tag](https://raw.github.com/stenyak/pyrellag/master/screenshots/login_dialog.png)
 
 Features
 --------
