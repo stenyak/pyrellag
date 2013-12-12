@@ -10,12 +10,19 @@ from stats import Stats
 class UnsupportedFormatError(Exception): pass
 
 def recursive_populate(path, log_freq, follow_freedektop_standard):
-    gallery = Gallery(path, log_freq, follow_freedektop_standard)
-    gallery.populate()
-    stats = gallery.stats.clone()
-    for g in gallery.gallery_paths:
-        subgallery, substats = recursive_populate(os.path.join(gallery.path, g), log_freq, follow_freedektop_standard)
-        stats.increase(substats)
+    try:
+        gallery = Gallery(path, log_freq, follow_freedektop_standard)
+        gallery.populate()
+        stats = gallery.stats.clone()
+        for g in gallery.gallery_paths:
+            subgallery, substats = recursive_populate(os.path.join(gallery.path, g), log_freq, follow_freedektop_standard)
+            if substats is None:
+                break
+            else:
+                stats.increase(substats)
+    except KeyboardInterrupt:
+        print "\n%sProcess interrupted by user!%s" %(Color.RED, Color.RESET)
+        return None, None
     return gallery, stats
 
 log_freq = 5
