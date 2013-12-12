@@ -208,7 +208,7 @@ def show_gallery(path):
     user = g.user
     path = urllib.unquote(path).encode("utf-8")
     check_jailed_path(path, "data")
-    g = Gallery(path)
+    g = Gallery(path, follow_freedesktop_standard = get_config()["follow_freedesktop_standard"])
     if user is not None:
         g.populate()
     return render_template("gallery.html", path = g.path.decode("utf-8"), parents = g.get_parents(), basename = os.path.basename(g.path.decode("utf-8")), nfiles = len(g.files), galleries = g.get_galleries(), files = g.get_files(), user = user)
