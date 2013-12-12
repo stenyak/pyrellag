@@ -2,17 +2,14 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2013, Bruno Gonzalez <stenyak@stenyak.com>. This software is licensed under the Affero General Public License version 3 or later.  See the LICENSE file.
 
-from config import get_config as cfg
+import os, urllib, time
 from functools import wraps
-from flask import request, g, session, flash, url_for, abort
-from flask_openid import OpenID
 
+from flask import request, g, session, flash, url_for, abort, Flask, redirect, send_file, render_template
+from flask_openid import OpenID
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-import os, urllib, time
-from flask import Flask, redirect, send_file, render_template
-from gallery import Gallery
 
 app = Flask(__name__)
 app.config.update(
@@ -25,6 +22,8 @@ oid = OpenID(app)
 def init_db():
     Base.metadata.create_all(bind=engine)
 
+from gallery import Gallery
+from config import get_config as cfg
 
 # setup sqlalchemy
 engine = create_engine(app.config['DATABASE_URI'])
