@@ -15,7 +15,7 @@ from flask import Flask, redirect, send_file, render_template
 from gallery import Gallery
 app = Flask(__name__)
 app.config.update(
-    DATABASE_URI = 'sqlite:////tmp/flask-openid.db',
+    DATABASE_URI = 'sqlite:///profiles.db',
     SECRET_KEY = 'development key',
     DEBUG = True
 )
