@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2013, Bruno Gonzalez <stenyak@stenyak.com>. This software is licensed under the Affero General Public License version 3 or later.  See the LICENSE file.
 
-import json
+from config import get_config as cfg
 from functools import wraps
 from flask import request, g, session, flash, url_for, abort
 from flask_openid import OpenID
@@ -14,13 +14,9 @@ import os, urllib, time
 from flask import Flask, redirect, send_file, render_template
 from gallery import Gallery
 
-def get_config():
-    with open("config.json", "r") as f:
-        return json.loads(f.read())
-
 app = Flask(__name__)
 app.config.update(
-    DATABASE_URI = "sqlite:///" + get_config()["profile_db_path"],
+    DATABASE_URI = "sqlite:///" + cfg()["profile_db_path"],
     SECRET_KEY = 'development key',
     DEBUG = True
 )
@@ -162,7 +158,7 @@ def create_profile():
             db_session.add(User(name, email, session['openid']))
             db_session.commit()
             return redirect(oid.get_next_url())
-    return render_template('create_profile.html', next_url=oid.get_next_url(), config=get_config())
+    return render_template('create_profile.html', next_url=oid.get_next_url(), config=cfg())
 
 
 @app.route('/profile', methods=['GET', 'POST'])
@@ -208,7 +204,7 @@ def show_gallery(path):
     user = g.user
     path = urllib.unquote(path).encode("utf-8")
     check_jailed_path(path, "data")
-    g = Gallery(path, follow_freedesktop_standard = get_config()["follow_freedesktop_standard"])
+    g = Gallery(path, follow_freedesktop_standard = cfg()["follow_freedesktop_standard"])
     if user is not None:
         g.populate()
     return render_template("gallery.html", path = g.path.decode("utf-8"), parents = g.get_parents(), basename = os.path.basename(g.path.decode("utf-8")), nfiles = len(g.files), galleries = g.get_galleries(), files = g.get_files(), user = user)

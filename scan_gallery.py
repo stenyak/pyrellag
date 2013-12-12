@@ -2,13 +2,9 @@
 # Copyright (c) 2013, Bruno Gonzalez <stenyak@stenyak.com>. This software is licensed under the Affero General Public License version 3 or later.  See the LICENSE file.
 
 import os, sys
-import json
+from config import get_config as cfg
 from gallery import Gallery
 from stats import Stats
-
-def get_config():
-    with open("config.json", "r") as f:
-        return json.loads(f.read())
 
 class UnsupportedFormatError(Exception): pass
 
@@ -22,7 +18,7 @@ def recursive_populate(path, log_freq, follow_freedektop_standard):
     return gallery, stats
 
 log_freq = 5
-g, stats = recursive_populate(path="data", log_freq=log_freq, follow_freedektop_standard = get_config()["follow_freedesktop_standard"])
+g, stats = recursive_populate(path="data", log_freq=log_freq, follow_freedektop_standard = cfg()["follow_freedesktop_standard"])
 if log_freq > 0:
     sys.stdout.write("\n")
 
