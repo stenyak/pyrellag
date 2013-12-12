@@ -11,26 +11,35 @@ from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-app = Flask(__name__)
-app.config.update(
-    DATABASE_URI = "sqlite:///" + cfg()["profile_db_path"],
-    SECRET_KEY = 'development key',
-    DEBUG = True
-)
-# setup flask-openid
-oid = OpenID(app)
-def init_db():
-    Base.metadata.create_all(bind=engine)
-
 from gallery import Gallery
 from config import get_config as cfg
 
-# setup sqlalchemy
-engine = create_engine(app.config['DATABASE_URI'])
-db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
-Base = declarative_base()
-Base.query = db_session.query_property()
 
+def init_globals(name, db_uri):
+    def init_flask_openid(app):
+        return OpenID(app)
+    def init_flask(name, db_uri):
+        app = Flask(name)
+        app.config.update(DATABASE_URI=db_uri, SECRET_KEY='development key', DEBUG=True)
+        return app
+    def init_sqlalchemy(db_uri):
+        engine = create_engine(db_uri)
+        db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
+        base = declarative_base()
+        base.query = db_session.query_property()
+        return engine, base, db_session
+    app = init_flask(name, db_uri)
+    oid = init_flask_openid(app)
+    engine, base, db_session = init_sqlalchemy(db_uri)
+    return app, oid, engine, base, db_session
+
+db_uri = "sqlite:///" + cfg()["profile_db_path"]
+app, oid, engine, Base, db_session = init_globals(__name__, db_uri)
+
+def init_db():
+    global engine
+    global Base
+    Base.metadata.create_all(bind=engine)
 
 class User(Base):
     __tablename__ = 'users'
