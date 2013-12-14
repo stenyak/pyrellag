@@ -3,9 +3,22 @@
 import sys, os, re, hashlib, shutil, Image, PngImagePlugin, urllib
 from stats import Stats
 from color import Color
+
+class Video:
+    extensions = ["3gp", "mov", "avi", "mpeg4", "mpg4", "mp4", "mkv"]
+    @staticmethod
+    def is_video(path):
+        extension = os.path.splitext(path)[1][1:].lower()
+        return extension in Video.extensions
+
+class Image:
+    extensions = ["jpg", "jpeg", "png", "gif"]
+    @staticmethod
+    def is_image(path):
+        extension = os.path.splitext(path)[1][1:].lower()
+        return extension in Image.extensions
+
 class Gallery:
-    image_exts = ["jpg", "jpeg", "png", "gif"]
-    video_exts = ["3gp", "mov", "avi", "mpeg4", "mpg4", "mp4", "mkv"]
     thumbs_dir_components = [".thumbnails", "normal"]
     thumbs_size = 128,128
     def __init__(self, path, log_freq = 0, follow_freedesktop_standard = False):
@@ -25,7 +38,7 @@ class Gallery:
         def get_galleries(path):
             return [d for d in os.listdir(path) if os.path.isdir(os.path.join(self.path, d)) and not d.startswith(".")] # ignore hidden directories
         def get_filesystem_files(path):
-            regexp = ".*\.(%s)$" %"|".join(self.image_exts + self.video_exts) #match any extension...
+            regexp = ".*\.(%s)$" %"|".join(Image.extensions + Video.extensions) #match any extension...
             r = re.compile(regexp, re.IGNORECASE) #...case insensitively
             paths = [os.path.join(self.path, f) for f in os.listdir(self.path)] #get relative paths
             paths = [f for f in paths if os.path.isfile(f)] #filter non-files
@@ -77,9 +90,9 @@ class Gallery:
                     verify_thumb_dir(thumb_path)
                     img.save(thumb_path, pnginfo=get_pnginfo(f))
                 extension = os.path.splitext(f)[1][1:].lower()
-                if self.is_image(f):
+                if Image.is_image(f):
                     image_thumb(f, thumb_path)
-                elif self.is_video(f):
+                elif Video.is_video(f):
                     video_thumb(f, thumb_path)
                 else:
                     raise UnsupportedFormatError()
@@ -116,12 +129,6 @@ class Gallery:
         if self.should_log(0):
             sys.stdout.write("\n")
             sys.stdout.flush()
-    def is_video(self, path):
-        extension = os.path.splitext(path)[1][1:].lower()
-        return extension in self.video_exts
-    def is_image(self, path):
-        extension = os.path.splitext(path)[1][1:].lower()
-        return extension in self.image_exts
     def get_uri(self, abs_path):
         if self.follow_freedesktop_standard:
             return "file://" + abs_path
@@ -161,8 +168,8 @@ class Gallery:
         for cur_file in sorted(self.files):
             thumb_path = os.path.relpath(self.get_thumb_path(cur_file))
             file_path = os.path.relpath(cur_file)
-            if self.is_image(file_path):
+            if Image.is_image(file_path):
                 files.append( {"type": "image", "file_path": file_path.decode("utf-8"), "thumb_path": thumb_path.decode("utf-8")} )
-            elif self.is_video(file_path):
+            elif Video.is_video(file_path):
                 files.append( {"type": "video", "file_path": file_path.decode("utf-8"), "thumb_path": thumb_path.decode("utf-8")} )
         return files
