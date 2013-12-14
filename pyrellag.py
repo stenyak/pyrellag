@@ -136,7 +136,7 @@ def login():
         openid = request.form.get('openid')
         if openid:
             return oid.try_login(openid, ask_for=['email', 'fullname', 'nickname'])
-    return render_template('login.html', next=oid.get_next_url(), error=oid.fetch_error(), providers=get_openid_providers())
+    return render_template('login.html', next=oid.get_next_url(), error=oid.fetch_error(), providers=get_openid_providers(), authorized=True)
 
 @db_required
 @oid.after_login
@@ -171,16 +171,14 @@ def create_profile():
             db_session.add(User(name, email, session['openid'], groups))
             db_session.commit()
             return redirect(oid.get_next_url())
-    return render_template('create_profile.html', next_url=oid.get_next_url(), config=cfg())
+    return render_template('create_profile.html', next_url=oid.get_next_url(), config=cfg(), authorized=True)
 
 @app.route('/profiles', methods=['GET', 'POST'])
 @render_time
 def edit_profiles():
     user = g.user
-    if user is None:
-        abort(401)
-    if not user.in_group("profile_editors"):
-        abort(401)
+    if user is None or not user.in_group("profile_editors"):
+        return render_template('edit_profiles.html', user=user, authorized=False)
     if request.method == 'POST':
         user = User.query.filter_by(id=request.form["id"]).first()
         action = request.form["action"]
@@ -195,14 +193,14 @@ def edit_profiles():
             raise Exception("Unknown profile editing action: \"%s\"" %action)
         db_session.commit()
     profiles = User.query.all()
-    return render_template('edit_profiles.html', profiles=profiles, user=user)
+    return render_template('edit_profiles.html', profiles=profiles, user=user, authorized=True)
 
 @app.route('/profile', methods=['GET', 'POST'])
 @render_time
 def edit_profile():
     user = g.user
     if user is None:
-        abort(401)
+        return render_template('edit_profile.html', user=user, authorized=False)
     form = dict(name=user.name, email=user.email)
     if request.method == 'POST':
         if 'delete' in request.form:
@@ -223,7 +221,7 @@ def edit_profile():
             user.email = form['email']
             db_session.commit()
             return redirect(url_for('edit_profile', user=user))
-    return render_template('edit_profile.html', form=form, user=user)
+    return render_template('edit_profile.html', form=form, user=user, authorized=True)
 
 
 @app.route('/logout')
@@ -237,12 +235,13 @@ def logout():
 def show_gallery(path):
     global g
     user = g.user
+    if user is None:
+        return render_template("gallery.html", user = user, authorized=False)
     path = urllib.unquote(path).encode("utf-8")
     check_jailed_path(path, "data")
     g = Gallery(path, follow_freedesktop_standard = cfg()["follow_freedesktop_standard"])
-    if user is not None:
-        g.populate()
-    return render_template("gallery.html", path = g.path.decode("utf-8"), parents = g.get_parents(), basename = os.path.basename(g.path.decode("utf-8")), nfiles = len(g.files), galleries = g.get_galleries(), files = g.get_files(), user = user)
+    g.populate()
+    return render_template("gallery.html", path = g.path.decode("utf-8"), parents = g.get_parents(), basename = os.path.basename(g.path.decode("utf-8")), nfiles = len(g.files), galleries = g.get_galleries(), files = g.get_files(), user = user, authorized=True)
 
 @app.route('/video/<path:path>')
 @render_time
@@ -250,11 +249,11 @@ def show_video(path):
     global g
     user = g.user
     if user is None:
-        abort(401)
+        return render_template("video.html", user = user, authorized=False)
     video_path = urllib.unquote(path).encode("utf-8")
     path = os.path.dirname(video_path)
     check_jailed_path(path, "data")
-    return render_template("video.html", video_path = video_path, path = path, video_basename = os.path.basename(video_path), user = user)
+    return render_template("video.html", video_path = video_path, path = path, video_basename = os.path.basename(video_path), user = user, authorized=True)
 
 def check_jailed_path(path, jail_path):
     if os.path.normpath(path) == jail_path:

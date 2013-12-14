@@ -6,7 +6,9 @@
         {% block extra_head %}{% endblock %}
     </head>
     <body>
-        {% block first %}{% endblock %}
+        {% if authorized %}
+            {% block first %}{% endblock %}
+        {% endif %}
         <a href='https://github.com/stenyak/pyrellag'><div class='logo'>powered by<br/><b>Pyrellag!</b></div></a>
         <div class="bg topbar">
                 {% if user %}
@@ -23,6 +25,12 @@
         </div>
         <div class='time'>render time: TTTTIMEs</div>
         <div style='clear:both'/>
-        {% block body %}{% endblock %}
+        {% if authorized %}
+            {% block body %}{% endblock %}
+        {% else %}
+            <div class="bg">
+                Oops! You are not authorized to view this page.
+            </div>
+        {% endif %}
     </body>
 </html>
