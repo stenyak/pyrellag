@@ -153,9 +153,7 @@ def create_or_login(resp):
 @app.route('/create-profile', methods=['GET', 'POST'])
 @render_time
 def create_profile():
-    """If this is the user's first login, the create_or_login function
-    will redirect here so that the user can set up his profile.
-    """
+    """If this is the user's first login, the create_or_login function will redirect here so that the user can set up his profile.  """
     if g.user is not None or 'openid' not in session:
         return redirect(url_for('index'))
     if request.method == 'POST':
