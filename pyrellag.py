@@ -3,6 +3,7 @@
 # Copyright (c) 2013, Bruno Gonzalez <stenyak@stenyak.com>. This software is licensed under the Affero General Public License version 3 or later.  See the LICENSE file.
 
 import os, urllib, time
+import json
 from functools import wraps
 
 from flask import request, g, session, flash, url_for, abort, Flask, redirect, send_file, render_template
@@ -169,7 +170,7 @@ def create_profile():
             flash(u'Profile successfully created')
             groups_string = ""
             if len(User.query.all()) == 0:
-                groups_string = "profile_editors"
+                groups_string = "profile_editors,config_editors"
             db_session.add(User(name, email, session['openid'], groups_string))
             db_session.commit()
             return redirect(oid.get_next_url())
@@ -196,6 +197,36 @@ def edit_profiles():
         db_session.commit()
     profiles = User.query.all()
     return render_template('edit_profiles.html', profiles=profiles, user=user)
+
+@app.route('/config', methods=['GET', 'POST'])
+@render_time
+def edit_config():
+    user = g.user
+    if user is None or not "config_editors" in user.get_groups():
+        return render_template('edit_config.html', user=user, authn_error=True)
+    def get_rows(textarea):
+        return len(textarea.split("\n")) * 1.2
+    def format_json(json_string):
+        return json.dumps(json_string, indent=4, sort_keys=True, separators=(",", " : "))
+
+    config = format_json(cfg())
+    if request.method == 'POST':
+        action = request.form["action"]
+        if action == "save":
+            config = request.form["config"]
+            try:
+                tmp = json.loads(config)
+                config = format_json(tmp)
+            except ValueError, ve:
+                return render_template('edit_config.html', user=user, config=config, rows=get_rows(config), error="configuration syntax error.")
+            with open("config.json", "w") as f:
+                f.write(config)
+                f.flush()
+        elif action == "revert":
+            pass
+        else:
+            raise Exception("Unknown config editing action: \"%s\"" %action)
+    return render_template('edit_config.html', user=user, config=config, rows=get_rows(config))
 
 @app.route('/profile', methods=['GET', 'POST'])
 @render_time

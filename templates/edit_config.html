@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Edit Gallery Configuration{% endblock %}
+{% block body %}
+<div class="bg" style>
+  <h2>Edit Gallery Configuration</h2>
+    <form action="" method=post>
+        <textarea {% if error %}style="background-color: rgb(255,210,210)"{% endif %} cols="80" rows="{{ rows }}" name=config>{{ config }}</textarea>
+        <br/>
+        <input type=submit name=action value="revert">
+        <input type=submit name=action value="save">
+        {% if error %}
+            Error: {{ error }}
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

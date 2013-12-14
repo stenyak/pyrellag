@@ -17,6 +17,10 @@
                         |
                         <a class="hlable" href="{{ url_for('edit_profiles') }}">edit profiles</a>
                     {% endif %}
+                    {% if "config_editors" in user.get_groups() %}
+                        |
+                        <a class="hlable" href="{{ url_for('edit_config') }}">configuration</a>
+                    {% endif %}
                     |
                     <a  class="hlable" href="{{ url_for('logout') }}">log out</a>
                 {% else %}
