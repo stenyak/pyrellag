@@ -47,11 +47,13 @@ class User(Base):
     name = Column(String(60))
     email = Column(String(200))
     openid = Column(String(200))
+    groups = Column(String(200))
 
-    def __init__(self, name, email, openid):
+    def __init__(self, name, email, openid, groups):
         self.name = name
         self.email = email
         self.openid = openid
+        self.groups = groups
 
 def db_created():
     try:
@@ -163,7 +165,7 @@ def create_profile():
             flash(u'Error: you have to enter a valid email address')
         else:
             flash(u'Profile successfully created')
-            db_session.add(User(name, email, session['openid']))
+            db_session.add(User(name, email, session['openid'], ""))
             db_session.commit()
             return redirect(oid.get_next_url())
     return render_template('create_profile.html', next_url=oid.get_next_url(), config=cfg())
