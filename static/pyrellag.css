@@ -147,3 +147,26 @@ body {
     -o-transform: rotate(5deg) scale(1.5) translate(-10px);
     -ms-transform: rotate(5deg) scale(1.5) translate(-10px);
 }
+
+table.profiles {
+        font-family: verdana,arial,sans-serif;
+        font-size:11px;
+        color:#333333;
+        border-width: 1px;
+        border-color: #666666;
+        border-collapse: collapse;
+}
+table.profiles th {
+        border-width: 1px;
+        padding: 8px;
+        border-style: solid;
+        border-color: #666666;
+        background-color: #dedede;
+}
+table.profiles td {
+        border-width: 1px;
+        padding: 8px;
+        border-style: solid;
+        border-color: #666666;
+        background-color: #ffffff;
+}

@@ -54,6 +54,8 @@ class User(Base):
         self.email = email
         self.openid = openid
         self.groups = groups
+    def in_group(self, group):
+        return group in self.groups.split(",")
 
 def db_created():
     try:
@@ -173,6 +175,16 @@ def create_profile():
             return redirect(oid.get_next_url())
     return render_template('create_profile.html', next_url=oid.get_next_url(), config=cfg())
 
+@app.route('/profiles', methods=['GET', 'POST'])
+@render_time
+def edit_profiles():
+    user = g.user
+    if user is None:
+        abort(401)
+    if not user.in_group("profile_editors"):
+        abort(401)
+    profiles = User.query.all()
+    return render_template('edit_profiles.html', profiles=profiles, user=user)
 
 @app.route('/profile', methods=['GET', 'POST'])
 @render_time
