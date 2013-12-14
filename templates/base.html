@@ -13,7 +13,7 @@
                     <a class="hlable" href="{{ url_for('edit_profile') }}">{{ user.name }}</a>
                     {% if user.in_group("profile_editors") %}
                         |
-                        <a href="{{ url_for('edit_profiles') }}">edit profiles</a>
+                        <a class="hlable" href="{{ url_for('edit_profiles') }}">edit profiles</a>
                     {% endif %}
                     |
                     <a  class="hlable" href="{{ url_for('logout') }}">log out</a>
