@@ -172,7 +172,6 @@ def create_profile():
 @app.route('/profile', methods=['GET', 'POST'])
 @render_time
 def edit_profile():
-    """Updates a profile"""
     user = g.user
     if user is None:
         abort(401)
