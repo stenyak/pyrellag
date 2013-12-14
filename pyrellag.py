@@ -47,15 +47,15 @@ class User(Base):
     name = Column(String(60))
     email = Column(String(200))
     openid = Column(String(200))
-    groups = Column(String(200))
+    groups_string = Column(String(200))
 
-    def __init__(self, name, email, openid, groups):
+    def __init__(self, name, email, openid, groups_string):
         self.name = name
         self.email = email
         self.openid = openid
-        self.groups = groups
+        self.groups_string = groups_string
     def get_groups(self):
-        return self.groups.split(",")
+        return self.groups_string.split(",")
 
 def db_created():
     try:
@@ -167,10 +167,10 @@ def create_profile():
             flash(u'Error: you have to enter a valid email address')
         else:
             flash(u'Profile successfully created')
-            groups = ""
+            groups_string = ""
             if len(User.query.all()) == 0:
-                groups = "profile_editors"
-            db_session.add(User(name, email, session['openid'], groups))
+                groups_string = "profile_editors"
+            db_session.add(User(name, email, session['openid'], groups_string))
             db_session.commit()
             return redirect(oid.get_next_url())
     return render_template('create_profile.html', next_url=oid.get_next_url())
@@ -188,7 +188,7 @@ def edit_profiles():
             user.name = request.form["name"]
             user.email = request.form["email"]
             user.openid = request.form["openid"]
-            user.groups = request.form["groups"]
+            user.groups_string = request.form["groups_string"]
         elif action == "delete":
             db_session.delete(user)
         else:

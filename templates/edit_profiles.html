@@ -9,7 +9,7 @@
           <th>name</th>
           <th>email</th>
           <th>openid</th>
-          <th>groups</th>
+          <th>groups (comma separated)</th>
       </tr></thead>
       <tbody>
         {% for p in profiles %}
@@ -19,7 +19,7 @@
                     <td><input type=text name=name value="{{ p.name }}"></td>
                     <td><input type=text name=email value="{{ p.email }}"></td>
                     <td><input type=text name=openid value="{{ p.openid }}"></td>
-                    <td><input type=text name=groups value="{{ p.groups }}"></td>
+                    <td><input type=text name=groups_string value="{{ p.groups_string }}"></td>
                     <td>
                         <input type=submit name=action value="save">
                         <input type=submit name=action value="delete">
