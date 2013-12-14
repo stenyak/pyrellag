@@ -56,7 +56,7 @@ class User(Base):
         self.openid = openid
         self.groups_string = groups_string
     def get_groups(self):
-        return self.groups_string.split(",")
+        return self.groups_string.split()
 
 def db_created():
     try:
@@ -170,7 +170,7 @@ def create_profile():
             flash(u'Profile successfully created')
             groups_string = ""
             if len(User.query.all()) == 0:
-                groups_string = "profile_editors,config_editors"
+                groups_string = "profile_editors config_editors"
             db_session.add(User(name, email, session['openid'], groups_string))
             db_session.commit()
             return redirect(oid.get_next_url())
