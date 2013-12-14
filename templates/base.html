@@ -20,7 +20,7 @@
                     |
                     <a  class="hlable" href="{{ url_for('logout') }}">log out</a>
                 {% else %}
-                    <b>in order to use this gallery, please <a class="hlable" href="{{ url_for('login') }}">log in</a></b>
+                    <a class="hlable" href="{{ url_for('login') }}">log in</a>
                 {% endif %}
         </div>
         <div class='time'>render time: TTTTIMEs</div>
