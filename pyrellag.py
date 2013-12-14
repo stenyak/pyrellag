@@ -54,8 +54,8 @@ class User(Base):
         self.email = email
         self.openid = openid
         self.groups = groups
-    def in_group(self, group):
-        return group in self.groups.split(",")
+    def get_groups(self):
+        return self.groups.split(",")
 
 def db_created():
     try:
@@ -179,7 +179,7 @@ def create_profile():
 @render_time
 def edit_profiles():
     user = g.user
-    if user is None or not user.in_group("profile_editors"):
+    if user is None or not "profile_editors" in user.get_groups():
         return render_template('edit_profiles.html', user=user, authn_error="only profile_editors can access this page.")
     if request.method == 'POST':
         user = User.query.filter_by(id=request.form["id"]).first()
