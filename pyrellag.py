@@ -183,6 +183,19 @@ def edit_profiles():
         abort(401)
     if not user.in_group("profile_editors"):
         abort(401)
+    if request.method == 'POST':
+        user = User.query.filter_by(id=request.form["id"]).first()
+        action = request.form["action"]
+        if action == "save":
+            user.name = request.form["name"]
+            user.email = request.form["email"]
+            user.openid = request.form["openid"]
+            user.groups = request.form["groups"]
+        elif action == "delete":
+            db_session.delete(user)
+        else:
+            raise Exception("Unknown profile editing action: \"%s\"" %action)
+        db_session.commit()
     profiles = User.query.all()
     return render_template('edit_profiles.html', profiles=profiles, user=user)
 

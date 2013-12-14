@@ -20,6 +20,10 @@
                     <td><input type=text name=email value="{{ p.email }}"></td>
                     <td><input type=text name=openid value="{{ p.openid }}"></td>
                     <td><input type=text name=groups value="{{ p.groups }}"></td>
+                    <td>
+                        <input type=submit name=action value="save">
+                        <input type=submit name=action value="delete">
+                    </td>
                 </form>
             </tr>
         {% endfor %}

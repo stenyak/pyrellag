@@ -164,8 +164,8 @@ table.profiles th {
         background-color: #dedede;
 }
 table.profiles td {
-        border-width: 1px;
-        padding: 8px;
+        border-width: 0px;
+        padding: 0px;
         border-style: solid;
         border-color: #666666;
         background-color: #ffffff;
