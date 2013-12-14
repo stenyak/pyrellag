@@ -165,7 +165,10 @@ def create_profile():
             flash(u'Error: you have to enter a valid email address')
         else:
             flash(u'Profile successfully created')
-            db_session.add(User(name, email, session['openid'], ""))
+            groups = ""
+            if len(User.query.all()) == 0:
+                groups = "profile_editors"
+            db_session.add(User(name, email, session['openid'], groups))
             db_session.commit()
             return redirect(oid.get_next_url())
     return render_template('create_profile.html', next_url=oid.get_next_url(), config=cfg())
