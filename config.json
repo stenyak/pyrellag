@@ -1,6 +1,5 @@
 {
     "profile_creation_enabled": true,
     "profile_db_path": "profile.db",
-    "follow_freedesktop_standard": false,
-    "admin_email": "admin@example.com"
+    "follow_freedesktop_standard": false
 }

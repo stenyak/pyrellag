@@ -4,20 +4,15 @@
 <div class="bg">
   <h2>Create Profile</h2>
     <p>This seems to be a new user.</p>
-    {% if config.profile_creation_enabled %}
-      <p>Before continuing, please check that your data is correct:</p>
-      <form action="" method=post>
-        Name: <input type=text name=name size=30 value="{{ request.values.name }}">
-        <br/>
-        Email: <input type=text name=email size=30 value="{{ request.values.email }}">
-        <br/>
-        <input type=submit value="Continue">
-        <a href="{{ url_for('logout') }}">(or cancel)</a>
-        <input type=hidden name=next value="{{ next }}">
-      </form>
-    {% else %}
-      <p>Unfortunately, profile creation has been disabled.</p>
-      <p>For more information, please <a href="mailto:{{ config.admin_email }}">contact with the administrator</a>.</p>
-    {% endif %}
+    <p>Before continuing, please check that your data is correct:</p>
+    <form action="" method=post>
+      Name: <input type=text name=name size=30 value="{{ request.values.name }}">
+      <br/>
+      Email: <input type=text name=email size=30 value="{{ request.values.email }}">
+      <br/>
+      <input type=submit value="Continue">
+      <a href="{{ url_for('logout') }}">(or cancel)</a>
+      <input type=hidden name=next value="{{ next }}">
+    </form>
 </div>
 {% endblock %}

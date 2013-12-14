@@ -156,6 +156,8 @@ def create_profile():
     """If this is the user's first login, the create_or_login function will redirect here so that the user can set up his profile.  """
     if g.user is not None or 'openid' not in session:
         return redirect(url_for('index'))
+    if not cfg()["profile_creation_enabled"]:
+        return render_template('create_profile.html', authorized=False)
     if request.method == 'POST':
         name = request.form['name']
         email = request.form['email']
@@ -171,7 +173,7 @@ def create_profile():
             db_session.add(User(name, email, session['openid'], groups))
             db_session.commit()
             return redirect(oid.get_next_url())
-    return render_template('create_profile.html', next_url=oid.get_next_url(), config=cfg(), authorized=True)
+    return render_template('create_profile.html', next_url=oid.get_next_url(), authorized=True)
 
 @app.route('/profiles', methods=['GET', 'POST'])
 @render_time
