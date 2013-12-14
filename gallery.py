@@ -1,6 +1,7 @@
 # Copyright (c) 2013, Bruno Gonzalez <stenyak@stenyak.com>. This software is licensed under the Affero General Public License version 3 or later.  See the LICENSE file.
 
-import sys, os, re, hashlib, shutil, Image, PngImagePlugin, urllib
+import sys, os, re, hashlib, shutil, PngImagePlugin, urllib
+import Image as image
 from stats import Stats
 from color import Color
 
@@ -83,7 +84,7 @@ class Gallery:
                         mtime = str(os.path.getmtime(file_path))
                         info.add_text("Thumb::MTime", mtime)
                         return info
-                    img = Image.open(f)
+                    img = image.open(f)
                     if img.mode != "RGB":
                         img = img.convert("RGB")
                     img.thumbnail(self.thumbs_size)
