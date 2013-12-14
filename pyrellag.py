@@ -136,7 +136,7 @@ def login():
         openid = request.form.get('openid')
         if openid:
             return oid.try_login(openid, ask_for=['email', 'fullname', 'nickname'])
-    return render_template('login.html', next=oid.get_next_url(), error=oid.fetch_error(), providers=get_openid_providers(), authorized=True)
+    return render_template('login.html', next=oid.get_next_url(), error=oid.fetch_error(), providers=get_openid_providers())
 
 @db_required
 @oid.after_login
@@ -157,7 +157,7 @@ def create_profile():
     if g.user is not None or 'openid' not in session:
         return redirect(url_for('index'))
     if not cfg()["profile_creation_enabled"]:
-        return render_template('create_profile.html', authorized=False)
+        return render_template('create_profile.html', authn_error="profile creation has been disabled by the administrator.")
     if request.method == 'POST':
         name = request.form['name']
         email = request.form['email']
@@ -173,14 +173,14 @@ def create_profile():
             db_session.add(User(name, email, session['openid'], groups))
             db_session.commit()
             return redirect(oid.get_next_url())
-    return render_template('create_profile.html', next_url=oid.get_next_url(), authorized=True)
+    return render_template('create_profile.html', next_url=oid.get_next_url())
 
 @app.route('/profiles', methods=['GET', 'POST'])
 @render_time
 def edit_profiles():
     user = g.user
     if user is None or not user.in_group("profile_editors"):
-        return render_template('edit_profiles.html', user=user, authorized=False)
+        return render_template('edit_profiles.html', user=user, authn_error="only profile_editors can access this page.")
     if request.method == 'POST':
         user = User.query.filter_by(id=request.form["id"]).first()
         action = request.form["action"]
@@ -195,14 +195,14 @@ def edit_profiles():
             raise Exception("Unknown profile editing action: \"%s\"" %action)
         db_session.commit()
     profiles = User.query.all()
-    return render_template('edit_profiles.html', profiles=profiles, user=user, authorized=True)
+    return render_template('edit_profiles.html', profiles=profiles, user=user)
 
 @app.route('/profile', methods=['GET', 'POST'])
 @render_time
 def edit_profile():
     user = g.user
     if user is None:
-        return render_template('edit_profile.html', user=user, authorized=False)
+        return render_template('edit_profile.html', user=user, authn_error="only logged in users can edit their profile")
     form = dict(name=user.name, email=user.email)
     if request.method == 'POST':
         if 'delete' in request.form:
@@ -223,7 +223,7 @@ def edit_profile():
             user.email = form['email']
             db_session.commit()
             return redirect(url_for('edit_profile', user=user))
-    return render_template('edit_profile.html', form=form, user=user, authorized=True)
+    return render_template('edit_profile.html', form=form, user=user)
 
 
 @app.route('/logout')
@@ -238,12 +238,12 @@ def show_gallery(path):
     global g
     user = g.user
     if user is None:
-        return render_template("gallery.html", user = user, authorized=False)
+        return render_template("gallery.html", user = user, authn_error="only logged in users may view this page")
     path = urllib.unquote(path).encode("utf-8")
     check_jailed_path(path, "data")
     g = Gallery(path, follow_freedesktop_standard = cfg()["follow_freedesktop_standard"])
     g.populate()
-    return render_template("gallery.html", path = g.path.decode("utf-8"), parents = g.get_parents(), basename = os.path.basename(g.path.decode("utf-8")), nfiles = len(g.files), galleries = g.get_galleries(), files = g.get_files(), user = user, authorized=True)
+    return render_template("gallery.html", path = g.path.decode("utf-8"), parents = g.get_parents(), basename = os.path.basename(g.path.decode("utf-8")), nfiles = len(g.files), galleries = g.get_galleries(), files = g.get_files(), user = user)
 
 @app.route('/video/<path:path>')
 @render_time
@@ -251,11 +251,11 @@ def show_video(path):
     global g
     user = g.user
     if user is None:
-        return render_template("video.html", user = user, authorized=False)
+        return render_template("video.html", user = user, authn_error="only logged in users may view this page")
     video_path = urllib.unquote(path).encode("utf-8")
     path = os.path.dirname(video_path)
     check_jailed_path(path, "data")
-    return render_template("video.html", video_path = video_path, path = path, video_basename = os.path.basename(video_path), user = user, authorized=True)
+    return render_template("video.html", video_path = video_path, path = path, video_basename = os.path.basename(video_path), user = user)
 
 def check_jailed_path(path, jail_path):
     if os.path.normpath(path) == jail_path:

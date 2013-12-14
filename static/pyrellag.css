@@ -11,6 +11,13 @@
 .time:hover {
     background-color: rgba(255,255,255,1);
 }
+.error {
+    background-color: rgba(200,80,80,0.5);
+
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+}
 .subgalleries {
     float: left;
     width: auto;

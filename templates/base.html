@@ -6,7 +6,7 @@
         {% block extra_head %}{% endblock %}
     </head>
     <body>
-        {% if authorized %}
+        {% if not authn_error %}
             {% block first %}{% endblock %}
         {% endif %}
         <a href='https://github.com/stenyak/pyrellag'><div class='logo'>powered by<br/><b>Pyrellag!</b></div></a>
@@ -25,12 +25,20 @@
         </div>
         <div class='time'>render time: TTTTIMEs</div>
         <div style='clear:both'/>
-        {% if authorized %}
-            {% block body %}{% endblock %}
-        {% else %}
+        {% if authn_error %}
             <div class="bg">
-                Oops! You are not authorized to view this page.
+                <span class="error">
+                    You are not authorized to view this page.
+                </span>
+                <p>
+                {% if authn_error != True %}
+                    <span class="error">
+                        Reason: {{ authn_error }}
+                    </span>
+                {% endif %}
             </div>
+        {% else %}
+            {% block body %}{% endblock %}
         {% endif %}
     </body>
 </html>
