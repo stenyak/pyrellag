@@ -249,16 +249,20 @@ def access_permitted(allowed_groups, user_groups):
 def show_gallery(path):
     global g
     user = g.user
-    if user is None:
+    if user is None and not cfg()["public_access"]:
         return render_template("gallery.html", user = user, authn_error="only logged in users may view this page")
     path = urllib.unquote(path).encode("utf-8")
     check_jailed_path(path, "data")
-    if not access_permitted(get_access_groups(path.encode("utf-8")), user.get_groups()):
-        return render_template("gallery.html", user = user, authn_error="not enough permissions to view this page")
+    if not cfg()["public_access"]:
+        if not access_permitted(get_access_groups(path.encode("utf-8")), user.get_groups()):
+            return render_template("gallery.html", user = user, authn_error="not enough permissions to view this page")
 
     g = Gallery(path, follow_freedesktop_standard = cfg()["follow_freedesktop_standard"])
     g.populate()
-    galleries = [gal for gal in g.get_galleries() if access_permitted(get_access_groups(gal["key"].encode("utf-8")), user.get_groups())]
+    if not cfg()["public_access"]:
+        galleries = [gal for gal in g.get_galleries() if access_permitted(get_access_groups(gal["key"].encode("utf-8")), user.get_groups())]
+    else:
+        galleries = g.get_galleries()
     return render_template("gallery.html", path = g.path.decode("utf-8"), parents = g.get_parents(), basename = os.path.basename(g.path.decode("utf-8")), nfiles = len(g.files), galleries = galleries, files = g.get_files(), user = user)
 
 @app.route('/video/<path:path>')
@@ -266,7 +270,7 @@ def show_gallery(path):
 def show_video(path):
     global g
     user = g.user
-    if user is None:
+    if user is None and not cfg()["public_access"]:
         return render_template("video.html", user = user, authn_error="only logged in users may view this page")
     video_path = urllib.unquote(path).encode("utf-8")
     path = os.path.dirname(video_path)
@@ -283,7 +287,7 @@ def check_jailed_path(path, jail_path):
 def show_data(path):
     global g
     user = g.user
-    if user is None:
+    if user is None and not cfg()["public_access"]:
         abort(401)
     path = urllib.unquote(path).encode("utf-8")
     if os.path.basename(path) == ".access":

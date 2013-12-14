@@ -20,6 +20,8 @@
                     |
                     <a  class="hlable" href="{{ url_for('logout') }}">log out</a>
                 {% else %}
+                    anonymous
+                    |
                     <a class="hlable" href="{{ url_for('login') }}">log in</a>
                 {% endif %}
         </div>
