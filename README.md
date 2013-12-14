@@ -37,6 +37,7 @@ Features
  - On-the-fly or off-line thumbnail generation.
  - Can follow **freedesktop.org Thumbnail Managing Standard** if desired.
  - Very light on the CPU and network.
+ - Administration panel (edit profiles, configuration...).
 
 Instructions
 ------------
