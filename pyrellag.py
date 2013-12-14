@@ -232,6 +232,18 @@ def logout():
     flash(u'You have been signed out')
     return redirect(oid.get_next_url())
 
+def get_access_groups(path):
+    """ get groups that are authorized to read the specified directory """
+    try:
+        with open(os.path.join(path, ".access"), "r") as f:
+            return f.read().split()
+    except IOError:
+        return []
+
+def access_permitted(allowed_groups, user_groups):
+    """ check if any of the user groups is in the list of allowed groups """
+    return bool(set(allowed_groups).intersection(set(user_groups)))
+
 @app.route('/gallery/<path:path>')
 @render_time
 def show_gallery(path):
@@ -241,9 +253,13 @@ def show_gallery(path):
         return render_template("gallery.html", user = user, authn_error="only logged in users may view this page")
     path = urllib.unquote(path).encode("utf-8")
     check_jailed_path(path, "data")
+    if not access_permitted(get_access_groups(path.encode("utf-8")), user.get_groups()):
+        return render_template("gallery.html", user = user, authn_error="not enough permissions to view this page")
+
     g = Gallery(path, follow_freedesktop_standard = cfg()["follow_freedesktop_standard"])
     g.populate()
-    return render_template("gallery.html", path = g.path.decode("utf-8"), parents = g.get_parents(), basename = os.path.basename(g.path.decode("utf-8")), nfiles = len(g.files), galleries = g.get_galleries(), files = g.get_files(), user = user)
+    galleries = [gal for gal in g.get_galleries() if access_permitted(get_access_groups(gal["key"].encode("utf-8")), user.get_groups())]
+    return render_template("gallery.html", path = g.path.decode("utf-8"), parents = g.get_parents(), basename = os.path.basename(g.path.decode("utf-8")), nfiles = len(g.files), galleries = galleries, files = g.get_files(), user = user)
 
 @app.route('/video/<path:path>')
 @render_time
@@ -270,6 +286,8 @@ def show_data(path):
     if user is None:
         abort(401)
     path = urllib.unquote(path).encode("utf-8")
+    if os.path.basename(path) == ".access":
+        abort(401)
     check_jailed_path(path, "data")
     return send_file(path)
 
