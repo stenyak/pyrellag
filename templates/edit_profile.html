@@ -9,10 +9,7 @@
     Email: <input type=text name=email size=30 value="{{ form.email }}">
     <br/>
     <input type=submit value="Update profile">
-    <br/>
-    <hr/>
     <input type=submit name=delete value="Delete profile">
-    <a href="{{ url_for('logout') }}">(or cancel)</a>
   </form>
 </div>
 {% endblock %}
