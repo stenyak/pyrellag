@@ -72,7 +72,7 @@
     overflow: auto;
 
     padding-top: 8px;
-    padding-bottom: 32px;
+    padding-bottom: 8px;
     width:100%;
 }
 .image {
@@ -118,15 +118,7 @@ body {
     background-image: -moz-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(28,28,28) 100%, rgb(18,18,18) 50%);
     background-image: -webkit-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(28,28,28) 100%, rgb(18,18,18) 50%);
     background-image: -ms-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(28,28,28) 100%, rgb(18,18,18) 50%);
-
-    background-image: -webkit-gradient(
-        linear,
-        left bottom,
-        right top,
-        color-stop(0.18, rgb(0,0,0)),
-        color-stop(1, rgb(28,28,28)),
-        color-stop(0.5, rgb(18,18,18))
-    );
+    background-image: -webkit-gradient(linear, left bottom, right top, color-stop(0.18, rgb(0,0,0)), color-stop(1, rgb(28,28,28)), color-stop(0.5, rgb(18,18,18)));
 }
 .subgallery {
     text-decoration: none;
