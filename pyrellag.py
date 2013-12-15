@@ -8,68 +8,29 @@ from functools import wraps
 
 from flask import request, g, session, flash, url_for, abort, Flask, redirect, send_file, render_template
 from flask_openid import OpenID
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.orm import scoped_session, sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
 
 from gallery import Gallery
 from config import get_config as cfg
 
 
-def init_globals(name, db_uri):
-    def init_flask_openid(app):
-        return OpenID(app)
-    def init_flask(name, db_uri):
-        app = Flask(name)
-        app.config.update(DATABASE_URI=db_uri, SECRET_KEY='development key', DEBUG=True)
-        return app
-    def init_sqlalchemy(db_uri):
-        engine = create_engine(db_uri)
-        db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
-        base = declarative_base()
-        base.query = db_session.query_property()
-        return engine, base, db_session
-    app = init_flask(name, db_uri)
-    oid = init_flask_openid(app)
-    engine, base, db_session = init_sqlalchemy(db_uri)
-    return app, oid, engine, base, db_session
+def init_flask_openid(app):
+    return OpenID(app)
+def init_flask(name):
+    app = Flask(name)
+    app.config.update(SECRET_KEY='development key', DEBUG=True)
+    return app
 
-db_uri = "sqlite:///" + "profile.db"
-app, oid, engine, Base, db_session = init_globals(__name__, db_uri)
+app = init_flask(__name__)
+oid = init_flask_openid(app)
 
-def init_db():
-    global engine
-    global Base
-    Base.metadata.create_all(bind=engine)
-
-class User(Base):
-    __tablename__ = 'users'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(60))
-    email = Column(String(200))
-    openid = Column(String(200))
-    groups_string = Column(String(200))
-
-    def __init__(self, name, email, openid, groups_string):
-        self.name = name
-        self.email = email
-        self.openid = openid
-        self.groups_string = groups_string
-    def get_groups(self):
-        return self.groups_string.split()
-
-def db_created():
-    try:
-        User.query.filter_by(openid="foobar").first()
-        return True
-    except:
-        return False
+from user import User, UserList
+user_list = UserList()
 
 def db_required(fn):
     @wraps(fn)
     def inner(*args, **kwargs):
-        if not db_created():
-            init_db()
+        if not user_list.db_created():
+            user_list.init_db()
         return fn(*args, **kwargs)
     return inner
 
@@ -95,7 +56,7 @@ def before_request():
 
 @app.after_request
 def after_request(response):
-    db_session.remove()
+    user_list.close()
     return response
 
 
@@ -187,8 +148,8 @@ def create_profile():
             groups_string = ""
             if len(User.query.all()) == 0:
                 groups_string = "administrators"
-            db_session.add(User(name, email, session['openid'], groups_string))
-            db_session.commit()
+            user_list.add(User(name, email, session['openid'], groups_string))
+            user_list.commit()
             return redirect(oid.get_next_url())
     return render('create_profile.html', next_url=oid.get_next_url())
 
@@ -206,11 +167,11 @@ def edit_profiles():
             user.email = request.form["email"]
             user.openid = request.form["openid"]
             user.groups_string = request.form["groups_string"]
+            user_list.commit()
         elif action == "delete":
-            db_session.delete(user)
+            user_list.delete(user)
         else:
             raise Exception("Unknown profile editing action: \"%s\"" %action)
-        db_session.commit()
     profiles = User.query.all()
     return render('edit_profiles.html', profiles=profiles)
 
@@ -267,8 +228,7 @@ def edit_profile():
                 return redirect(request.form["next"])
             return render('edit_profile.html', form=form)
         if 'delete' in request.form:
-            db_session.delete(user)
-            db_session.commit()
+            user_list.delete(user)
             session['openid'] = None
             flash(u'Profile deleted')
             return redirect(url_for('index'))
@@ -282,7 +242,7 @@ def edit_profile():
             flash(u'Profile successfully created')
             user.name = form['name']
             user.email = form['email']
-            db_session.commit()
+            user_list.commit()
             return redirect(url_for('edit_profile', user=user))
     return render('edit_profile.html', form=form)
 
