@@ -12,7 +12,7 @@
 {% endblock %}
 {% block body %}
         <div class='bg subgalleries'>
-                <ul style='margin: 0px'>
+                <ul style='list-style-image: url({{ url_for('show_static', path="icons/folder.png") }});'>
                     {% for i in galleries %}
                     <a class='subgallery' href='{{ url_for('show_gallery', path=i.key|urlencode) }}'><li class='hlable'>{{ i.value }}</li></a>
                     {% endfor %}

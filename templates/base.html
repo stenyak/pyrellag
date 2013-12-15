@@ -13,21 +13,21 @@
                         <a class="hlable" href="{{ url_for('edit_profile') }}">{{ user.name }}</a>
                         {% if "profile_editors" in user.get_groups() %}
                             |
-                            <a class="hlable" href="{{ url_for('edit_profiles') }}">edit profiles</a>
+                            <a class="hlable" href="{{ url_for('edit_profiles') }}">edit profiles<img src="{{ url_for('show_static', path="icons/edit.png")}}"/></a>
                         {% endif %}
                         {% if "config_editors" in user.get_groups() %}
                             |
-                            <a class="hlable" href="{{ url_for('edit_config') }}">configuration</a>
+                            <a class="hlable" href="{{ url_for('edit_config') }}">configuration<img src="{{ url_for('show_static', path="icons/configuration.png")}}"/></a>
                         {% endif %}
                         |
-                        <a  class="hlable" href="{{ url_for('logout') }}">log out</a>
+                        <a  class="hlable" href="{{ url_for('logout') }}">log out<img src="{{ url_for('show_static', path="icons/logout.png")}}"/></a>
                     {% else %}
                         anonymous
                         |
-                        <a class="hlable" href="{{ url_for('login') }}">log in</a>
+                        <a class="hlable" href="{{ url_for('login') }}">log in <img src="{{ url_for('show_static', path="icons/login.png")}}"/></a>
                     {% endif %}
             </div>
-            <div class='bg' style="float: left"><a href='{{ url_for('index') }}'>Gallery</a>{% if not authn_error %}{% block route %}{% endblock %}{% endif %}
+            <div class='bg' style="float: left"><a class="hlable" href='{{ url_for('index') }}'><img src="{{ url_for('show_static', path="icons/home.png")}}"/>Gallery</a>{% if not authn_error %}{% block route %}{% endblock %}{% endif %}
             </div>
             {% if debug %}
                 <div class='time'>render time: TTTTIMEs</div>

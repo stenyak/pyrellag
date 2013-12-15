@@ -196,3 +196,6 @@ table.profiles td {
         border-color: #666666;
         background-color: #ffffff;
 }
+ul {
+    padding-left: 1.1em;
+}
