@@ -125,6 +125,9 @@ def get_openid_providers():
     OpenIdProvider("OpenID", "Your custom OpenID url", False)
     ]
 
+def is_in_group(user, group):
+    return user is not None and group in user.get_groups()
+
 def render(*args, **kwargs):
     global g
     user = g.user
@@ -185,7 +188,7 @@ def create_profile():
 @render_time
 def edit_profiles():
     user = g.user
-    if user is None or not "administrators" in user.get_groups():
+    if not is_in_group(user, "administrators"):
         return render('edit_profiles.html', authn_error="only administrators can access this page.")
     if request.method == 'POST':
         user = User.query.filter_by(id=request.form["id"]).first()
@@ -207,7 +210,7 @@ def edit_profiles():
 @render_time
 def edit_config():
     user = g.user
-    if user is None or not "administrators" in user.get_groups():
+    if not is_in_group(user, "administrators"):
         return render('edit_config.html', authn_error=True)
     def get_rows(textarea):
         return len(textarea.split("\n")) * 1.2
@@ -329,7 +332,7 @@ def show_gallery(path):
         else:
             raise Exception("Unknown gallery editing action: \"%s\"" %action)
 
-    if user is not None and "administrators" in user.get_groups():
+    if not is_in_group(user, "administrators"):
         groups = " ".join(gallery_groups)
     return render("gallery.html", path = gallery.path.decode("utf-8"), route = get_route(gallery.path)[1:], galleries = galleries, files = gallery.get_files(), groups=groups, groups_error=groups_error)
 
