@@ -61,12 +61,19 @@
     padding-left: 5px;
     padding-right: 5px;
 }
+* {
+    margin: 0px;
+    padding: 0px;
+}
 .topbar {
-    float: right;
-    transition: background-color 0.1s linear;
-    -moz-transition: background-color 0.1s linear;
-    -webkit-transition: background-color 0.1s linear;
-    -ms-transition: background-color 0.1s linear;
+    width:100%;
+}
+.content {
+    overflow: auto;
+
+    padding-top: 8px;
+    padding-bottom: 32px;
+    width:100%;
 }
 .image {
     padding: 5px;
@@ -105,6 +112,7 @@
 body {
     overflow-y: auto;
     overflow-x: hidden;
+
     background-image: linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(28,28,28) 100%, rgb(18,18,18) 50%);
     background-image: -o-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(28,28,28) 100%, rgb(18,18,18) 50%);
     background-image: -moz-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(28,28,28) 100%, rgb(18,18,18) 50%);
