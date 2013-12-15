@@ -5,10 +5,8 @@
 {% endblock %}
 {% block body %}
     <div style='text-align:center;'>
-        {% if user %}
-            <video controls autoplay>
-                <source src="{{ url_for('show_data', path=video_path|urlencode) }}"/>
-            </video>
-        {% endif %}
+        <video controls autoplay>
+            <source src="{{ url_for('show_data', path=video_path|urlencode) }}"/>
+        </video>
     </div>
 {% endblock %}
