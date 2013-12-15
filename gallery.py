@@ -149,16 +149,16 @@ class Gallery:
         for i in self.gallery_paths:
             result += "%s" %i
         return result
-    def get_route(self):
-        parents = []
+    def get_route(self, path):
+        route = []
         paths = []
-        temp_paths = self.path.split(os.sep)
+        temp_paths = path.split(os.sep)
         for k,v in enumerate(temp_paths):
             cur_path = temp_paths[:k+1]
             paths.append(os.path.join(*cur_path).decode("utf-8"))
-        for path in paths:
-            parents.append( {"key": path, "value": os.path.basename(path)} )
-        return parents
+        for p in paths:
+            route.append( {"key": p, "value": os.path.basename(p)} )
+        return route
     def get_galleries(self):
         galleries = []
         for path in [os.path.normpath(os.path.join(self.path, path)).decode("utf-8") for path in sorted(self.gallery_paths)]:
