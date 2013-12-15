@@ -175,7 +175,7 @@ def create_profile():
             flash(u'Profile successfully created')
             groups_string = ""
             if len(User.query.all()) == 0:
-                groups_string = "profile_editors config_editors access_editors"
+                groups_string = "administrators"
             db_session.add(User(name, email, session['openid'], groups_string))
             db_session.commit()
             return redirect(oid.get_next_url())
@@ -185,8 +185,8 @@ def create_profile():
 @render_time
 def edit_profiles():
     user = g.user
-    if user is None or not "profile_editors" in user.get_groups():
-        return render('edit_profiles.html', authn_error="only profile_editors can access this page.")
+    if user is None or not "administrators" in user.get_groups():
+        return render('edit_profiles.html', authn_error="only administrators can access this page.")
     if request.method == 'POST':
         user = User.query.filter_by(id=request.form["id"]).first()
         action = request.form["action"]
@@ -207,7 +207,7 @@ def edit_profiles():
 @render_time
 def edit_config():
     user = g.user
-    if user is None or not "config_editors" in user.get_groups():
+    if user is None or not "administrators" in user.get_groups():
         return render('edit_config.html', authn_error=True)
     def get_rows(textarea):
         return len(textarea.split("\n")) * 1.2
@@ -329,7 +329,7 @@ def show_gallery(path):
         else:
             raise Exception("Unknown gallery editing action: \"%s\"" %action)
 
-    if user is not None and "access_editors" in user.get_groups():
+    if user is not None and "administrators" in user.get_groups():
         groups = " ".join(gallery_groups)
     return render("gallery.html", path = gallery.path.decode("utf-8"), route = get_route(gallery.path)[1:], galleries = galleries, files = gallery.get_files(), groups=groups, groups_error=groups_error)
 
