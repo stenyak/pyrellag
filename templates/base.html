@@ -27,7 +27,7 @@
                         <a class="hlable" href="{{ url_for('login') }}">log in</a>
                     {% endif %}
             </div>
-            <div class='bg' style="float: left"><a href='{{ url_for('index') }}'>Home</a>{% if not authn_error %}{% block route %}{% endblock %}{% endif %}
+            <div class='bg' style="float: left"><a href='{{ url_for('index') }}'>Gallery</a>{% if not authn_error %}{% block route %}{% endblock %}{% endif %}
             </div>
             {% if debug %}
                 <div class='time'>render time: TTTTIMEs</div>
