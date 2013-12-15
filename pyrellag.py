@@ -317,7 +317,7 @@ def show_video(path):
     video_path = urllib.unquote(path).encode("utf-8")
     path = os.path.dirname(video_path)
     check_jailed_path(path, "data")
-    return render_template("video.html", debug=cfg()["debug_mode_enabled"], video_path = video_path, path = path, video_basename = os.path.basename(video_path), user = user)
+    return render_template("video.html", debug=cfg()["debug_mode_enabled"], video_path = video_path, route=get_route(video_path)[1:-1], video_basename = os.path.basename(video_path), user = user)
 
 def check_jailed_path(path, jail_path):
     if os.path.normpath(path) == jail_path:
