@@ -123,9 +123,25 @@ body {
 .subgallery {
     text-decoration: none;
 }
+.home {
+    width: auto;
+    float: left;
+    padding: 0px;
+    background-color: silver;
+    text-align:center;
+    text-shadow:5px 5px 10px #000000;
+
+    border:solid 3px grey;
+    -moz-border-radius: 38px;
+    -webkit-border-radius: 38px;
+    border-radius: 38px;
+
+}
 .logo {
     width: auto;
-    float: right;
+    position: fixed;
+    right: 0px;
+    bottom: 0px;
     padding: 5px;
     background-color: silver;
     text-align:center;
@@ -144,18 +160,18 @@ body {
     -webkit-transition:All 0.3s ease-in-out;
     -moz-transition:All 0.3s ease-in-out;
     -o-transition:All 0.3s ease-in-out;
-    transform: rotate(25deg) scale(1) translate(10px, -15px);
-    -webkit-transform: rotate(25deg) scale(1) translate(10px, -15px);
-    -moz-transform: rotate(25deg) scale(1) translate(10px, -15px);
-    -o-transform: rotate(25deg) scale(1) translate(10px, -15px);
-    -ms-transform: rotate(25deg) scale(1) translate(10px, -15px);
+    transform: rotate(-25deg) scale(1) translate(10px, -15px);
+    -webkit-transform: rotate(-25deg) scale(1) translate(10px, -15px);
+    -moz-transform: rotate(-25deg) scale(1) translate(10px, -15px);
+    -o-transform: rotate(-25deg) scale(1) translate(10px, -15px);
+    -ms-transform: rotate(-25deg) scale(1) translate(10px, -15px);
 }
 .logo:hover{
-    transform: rotate(5deg) scale(1.5) translate(-10px);
-    -webkit-transform: rotate(5deg) scale(1.5) translate(-10px);
-    -moz-transform: rotate(5deg) scale(1.5) translate(-10px);
-    -o-transform: rotate(5deg) scale(1.5) translate(-10px);
-    -ms-transform: rotate(5deg) scale(1.5) translate(-10px);
+    transform: rotate(-5deg) scale(1.5) translate(-20px, -20px);
+    -webkit-transform: rotate(-5deg) scale(1.5) translate(-20px, -20px);
+    -moz-transform: rotate(-5deg) scale(1.5) translate(-20px, -20px);
+    -o-transform: rotate(-5deg) scale(1.5) translate(-20px, -20px);
+    -ms-transform: rotate(-5deg) scale(1.5) translate(-20px, -20px);
 }
 
 table.profiles {
