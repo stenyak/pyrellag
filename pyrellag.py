@@ -126,7 +126,9 @@ def get_openid_providers():
     ]
 
 def render(*args, **kwargs):
-    return render_template(*args, debug=cfg()["debug_mode_enabled"], **kwargs)
+    global g
+    user = g.user
+    return render_template(*args, debug=cfg()["debug_mode_enabled"], user=user, **kwargs)
 
 @app.route('/login', methods=['GET', 'POST'])
 @render_time
@@ -184,7 +186,7 @@ def create_profile():
 def edit_profiles():
     user = g.user
     if user is None or not "profile_editors" in user.get_groups():
-        return render('edit_profiles.html', user=user, authn_error="only profile_editors can access this page.")
+        return render('edit_profiles.html', authn_error="only profile_editors can access this page.")
     if request.method == 'POST':
         user = User.query.filter_by(id=request.form["id"]).first()
         action = request.form["action"]
@@ -199,14 +201,14 @@ def edit_profiles():
             raise Exception("Unknown profile editing action: \"%s\"" %action)
         db_session.commit()
     profiles = User.query.all()
-    return render('edit_profiles.html', profiles=profiles, user=user)
+    return render('edit_profiles.html', profiles=profiles)
 
 @app.route('/config', methods=['GET', 'POST'])
 @render_time
 def edit_config():
     user = g.user
     if user is None or not "config_editors" in user.get_groups():
-        return render('edit_config.html', user=user, authn_error=True)
+        return render('edit_config.html', authn_error=True)
     def get_rows(textarea):
         return len(textarea.split("\n")) * 1.2
     def format_json(json_string):
@@ -221,7 +223,7 @@ def edit_config():
                 tmp = json.loads(config)
                 config = format_json(tmp)
             except ValueError, ve:
-                return render('edit_config.html', user=user, config=config, rows=get_rows(config), error="configuration syntax error.")
+                return render('edit_config.html', config=config, rows=get_rows(config), error="configuration syntax error.")
             with open("config.json", "w") as f:
                 f.write(config)
                 f.flush()
@@ -229,14 +231,14 @@ def edit_config():
             pass
         else:
             raise Exception("Unknown config editing action: \"%s\"" %action)
-    return render('edit_config.html', user=user, config=config, rows=get_rows(config))
+    return render('edit_config.html', config=config, rows=get_rows(config))
 
 @app.route('/profile', methods=['GET', 'POST'])
 @render_time
 def edit_profile():
     user = g.user
     if user is None:
-        return render('edit_profile.html', user=user, authn_error="only logged in users can edit their profile")
+        return render('edit_profile.html', authn_error="only logged in users can edit their profile")
     form = dict(name=user.name, email=user.email)
     if request.method == 'POST':
         if 'delete' in request.form:
@@ -257,7 +259,7 @@ def edit_profile():
             user.email = form['email']
             db_session.commit()
             return redirect(url_for('edit_profile', user=user))
-    return render('edit_profile.html', form=form, user=user)
+    return render('edit_profile.html', form=form)
 
 
 @app.route('/logout')
@@ -300,13 +302,13 @@ def show_gallery(path):
     global g
     user = g.user
     if user is None and not cfg()["public_access"]:
-        return render("gallery.html", user = user, authn_error="only logged in users may view this page")
+        return render("gallery.html", authn_error="only logged in users may view this page")
     path = urllib.unquote(path).encode("utf-8")
     check_jailed_path(path, "data")
     gallery_groups = get_access_groups(path.encode("utf-8"))
     if not cfg()["public_access"]:
         if not access_permitted(gallery_groups, user.get_groups()):
-            return render("gallery.html", user = user, authn_error="not enough permissions to view this page")
+            return render("gallery.html", authn_error="not enough permissions to view this page")
 
     g = Gallery(path, follow_freedesktop_standard = cfg()["follow_freedesktop_standard"])
     g.populate()
@@ -329,7 +331,7 @@ def show_gallery(path):
 
     if user is not None and "access_editors" in user.get_groups():
         groups = " ".join(gallery_groups)
-    return render("gallery.html", path = g.path.decode("utf-8"), route = get_route(g.path)[1:], galleries = galleries, files = g.get_files(), user = user, groups=groups, groups_error=groups_error)
+    return render("gallery.html", path = g.path.decode("utf-8"), route = get_route(g.path)[1:], galleries = galleries, files = g.get_files(), groups=groups, groups_error=groups_error)
 
 @app.route('/video/<path:path>')
 @render_time
@@ -337,11 +339,11 @@ def show_video(path):
     global g
     user = g.user
     if user is None and not cfg()["public_access"]:
-        return render("video.html", user = user, authn_error="only logged in users may view this page")
+        return render("video.html", authn_error="only logged in users may view this page")
     video_path = urllib.unquote(path).encode("utf-8")
     path = os.path.dirname(video_path)
     check_jailed_path(path, "data")
-    return render("video.html", video_path = video_path, route=get_route(video_path)[1:-1], video_basename = os.path.basename(video_path), user = user)
+    return render("video.html", video_path = video_path, route=get_route(video_path)[1:-1], video_basename = os.path.basename(video_path))
 
 def check_jailed_path(path, jail_path):
     if os.path.normpath(path) == jail_path:
