@@ -170,7 +170,7 @@ def create_profile():
             flash(u'Profile successfully created')
             groups_string = ""
             if len(User.query.all()) == 0:
-                groups_string = "profile_editors config_editors"
+                groups_string = "profile_editors config_editors access_editors"
             db_session.add(User(name, email, session['openid'], groups_string))
             db_session.commit()
             return redirect(oid.get_next_url())
@@ -263,6 +263,11 @@ def logout():
     flash(u'You have been signed out')
     return redirect(oid.get_next_url())
 
+def set_access_groups(path, groups):
+    """ set groups that are authorized to read the specified directory """
+    with open(os.path.join(path, ".access"), "w") as f:
+        f.write("\n".join(groups))
+        f.flush()
 def get_access_groups(path):
     """ get groups that are authorized to read the specified directory """
     try:
@@ -286,7 +291,7 @@ def get_route(path):
         route.append( {"key": p, "value": os.path.basename(p)} )
     return route
 
-@app.route('/gallery/<path:path>')
+@app.route('/gallery/<path:path>', methods=['GET', 'POST'])
 @render_time
 def show_gallery(path):
     global g
@@ -295,8 +300,9 @@ def show_gallery(path):
         return render_template("gallery.html", debug=cfg()["debug_mode_enabled"], user = user, authn_error="only logged in users may view this page")
     path = urllib.unquote(path).encode("utf-8")
     check_jailed_path(path, "data")
+    gallery_groups = get_access_groups(path.encode("utf-8"))
     if not cfg()["public_access"]:
-        if not access_permitted(get_access_groups(path.encode("utf-8")), user.get_groups()):
+        if not access_permitted(gallery_groups, user.get_groups()):
             return render_template("gallery.html", debug=cfg()["debug_mode_enabled"], user = user, authn_error="not enough permissions to view this page")
 
     g = Gallery(path, follow_freedesktop_standard = cfg()["follow_freedesktop_standard"])
@@ -305,7 +311,22 @@ def show_gallery(path):
         galleries = [gal for gal in g.get_galleries() if access_permitted(get_access_groups(gal["key"].encode("utf-8")), user.get_groups())]
     else:
         galleries = g.get_galleries()
-    return render_template("gallery.html", debug=cfg()["debug_mode_enabled"], path = g.path.decode("utf-8"), route = get_route(g.path)[1:], galleries = galleries, files = g.get_files(), user = user)
+    groups = None
+    groups_error = None
+    if request.method == 'POST':
+        action = request.form["action"]
+        if action == "save":
+            gallery_groups = request.form["groups_string"].split()
+            try:
+                set_access_groups(path.encode("utf-8"), gallery_groups)
+            except IOError, ioe:
+                groups_error = "%s" %ioe
+        else:
+            raise Exception("Unknown gallery editing action: \"%s\"" %action)
+
+    if user is not None and "access_editors" in user.get_groups():
+        groups = " ".join(gallery_groups)
+    return render_template("gallery.html", debug=cfg()["debug_mode_enabled"], path = g.path.decode("utf-8"), route = get_route(g.path)[1:], galleries = galleries, files = g.get_files(), user = user, groups=groups, groups_error=groups_error)
 
 @app.route('/video/<path:path>')
 @render_time

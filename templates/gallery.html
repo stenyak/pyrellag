@@ -11,6 +11,19 @@
     {% endfor %}
 {% endblock %}
 {% block body %}
+        {% if groups != None %}
+            <div style="margin-bottom: 5px" class='bg subgalleries'>
+                <form style="display: inline" action="" method=post>Access groups:
+                    <input type=hidden name=path value="{{ path }}">
+                    <input type=text name=groups_string value="{{ groups }}">
+                    <input type=submit name=action value="save">
+                </form>
+                {% if groups_error %}
+                        <span class="error">{{ groups_error }}</span>
+                {% endif %}
+            </div>
+            <div style="clear:both;"/>
+        {% endif %}
         <div class='bg subgalleries'>
                 <ul style='list-style-image: url({{ url_for('show_static', path="icons/folder.png") }});'>
                     {% for i in galleries %}
