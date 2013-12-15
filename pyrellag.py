@@ -275,6 +275,17 @@ def access_permitted(allowed_groups, user_groups):
     """ check if any of the user groups is in the list of allowed groups """
     return bool(set(allowed_groups).intersection(set(user_groups)))
 
+def get_route(path):
+    route = []
+    paths = []
+    temp_paths = path.split(os.sep)
+    for k,v in enumerate(temp_paths):
+        cur_path = temp_paths[:k+1]
+        paths.append(os.path.join(*cur_path).decode("utf-8"))
+    for p in paths:
+        route.append( {"key": p, "value": os.path.basename(p)} )
+    return route
+
 @app.route('/gallery/<path:path>')
 @render_time
 def show_gallery(path):
@@ -294,7 +305,7 @@ def show_gallery(path):
         galleries = [gal for gal in g.get_galleries() if access_permitted(get_access_groups(gal["key"].encode("utf-8")), user.get_groups())]
     else:
         galleries = g.get_galleries()
-    return render_template("gallery.html", debug=cfg()["debug_mode_enabled"], path = g.path.decode("utf-8"), route = g.get_route(g.path)[1:], galleries = galleries, files = g.get_files(), user = user)
+    return render_template("gallery.html", debug=cfg()["debug_mode_enabled"], path = g.path.decode("utf-8"), route = get_route(g.path)[1:], galleries = galleries, files = g.get_files(), user = user)
 
 @app.route('/video/<path:path>')
 @render_time
