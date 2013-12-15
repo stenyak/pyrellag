@@ -103,7 +103,7 @@
     background-color: white;
 }
 body {
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
     background-image: linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(28,28,28) 100%, rgb(18,18,18) 50%);
     background-image: -o-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(28,28,28) 100%, rgb(18,18,18) 50%);
