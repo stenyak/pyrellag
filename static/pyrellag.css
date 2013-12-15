@@ -199,3 +199,7 @@ table.profiles td {
 ul {
     padding-left: 1.1em;
 }
+a:link {color: #1F1F1F; text-decoration: none; }
+a:active {color: #0000ff; text-decoration: none; }
+a:visited {color: #1F1F1F; text-decoration: none; }
+a:hover {color: #000000; text-decoration: none; }
