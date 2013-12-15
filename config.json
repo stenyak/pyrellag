@@ -1,4 +1,5 @@
 {
+    "debug_mode_enabled" : false,
     "follow_freedesktop_standard" : false,
     "profile_creation_enabled" : true,
     "public_access" : true

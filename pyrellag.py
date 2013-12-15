@@ -333,4 +333,4 @@ def show_static(path):
     return send_file(path)
 
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0")
+    app.run(debug=cfg()["debug_mode_enabled"], host="0.0.0.0")
