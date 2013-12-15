@@ -5,22 +5,20 @@
         <script type="text/javascript" src="{{ url_for('show_static', path="ps/lib/klass.min.js") }}"></script>
         <script type="text/javascript" src="{{ url_for('show_static', path="ps/code.photoswipe-3.0.5.min.js") }}"></script>
 {% endblock %}
-{% block header %}
+{% block route %}:
+    {% for i in parents %}
+        <a class='hlable' href='{{ url_for('show_gallery', path=i.key|urlencode) }}'>{{ i.value }}</a> /
+    {% endfor %}
+    {{ basename }} ({{ nfiles }})
+{% endblock %}
+{% block body %}
         <div class='bg subgalleries'>
-            Gallery:
-            {% for i in parents %}
-                <a class='hlable' href='{{ url_for('show_gallery', path=i.key|urlencode) }}'>{{ i.value }}</a> /
-            {% endfor %}
-            {{ basename }} ({{ nfiles }})
-
                 <ul style='margin: 0px'>
                     {% for i in galleries %}
                     <a class='subgallery' href='{{ url_for('show_gallery', path=i.key|urlencode) }}'><li class='hlable'>{{ i.value }}</li></a>
                     {% endfor %}
                 </ul>
         </div>
-{% endblock %}
-{% block body %}
         <div id='Gallery' style='text-align:center;'>
             {% for i in files %}
                 {% if i.type == "image" %}
