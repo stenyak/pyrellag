@@ -9,7 +9,7 @@
     {% for i in parents %}
         <a class='hlable' href='{{ url_for('show_gallery', path=i.key|urlencode) }}'>{{ i.value }}</a> /
     {% endfor %}
-    {{ basename }} ({{ nfiles }})
+    {{ basename }}
 {% endblock %}
 {% block body %}
         <div class='bg subgalleries'>
