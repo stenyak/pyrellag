@@ -57,7 +57,6 @@ You can edit the configuration file (`config.json`) either directly on your file
 
  - `follow_freedesktop_standard`: if `true`, absolute paths will be used when computing thumbnail paths.
  - `profile_creation_enabled`: if `false`, nobody will be able to create user profiles anymore.
- - `profile_db_path` : path to user profiles database file (sqlite3).
  - `public_access` : if `true`, anybody can view the whole gallery. If `false`, authorization is needed everywhere.
 
 Authorization

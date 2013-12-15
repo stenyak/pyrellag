@@ -34,7 +34,7 @@ def init_globals(name, db_uri):
     engine, base, db_session = init_sqlalchemy(db_uri)
     return app, oid, engine, base, db_session
 
-db_uri = "sqlite:///" + cfg()["profile_db_path"]
+db_uri = "sqlite:///" + "profile.db"
 app, oid, engine, Base, db_session = init_globals(__name__, db_uri)
 
 def init_db():
