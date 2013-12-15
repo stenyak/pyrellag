@@ -310,12 +310,12 @@ def show_gallery(path):
         if not access_permitted(gallery_groups, user.get_groups()):
             return render("gallery.html", authn_error="not enough permissions to view this page")
 
-    g = Gallery(path, follow_freedesktop_standard = cfg()["follow_freedesktop_standard"])
-    g.populate()
+    gallery = Gallery(path, follow_freedesktop_standard = cfg()["follow_freedesktop_standard"])
+    gallery.populate()
     if not cfg()["public_access"]:
-        galleries = [gal for gal in g.get_galleries() if access_permitted(get_access_groups(gal["key"].encode("utf-8")), user.get_groups())]
+        galleries = [gal for gal in gallery.get_galleries() if access_permitted(get_access_groups(gal["key"].encode("utf-8")), user.get_groups())]
     else:
-        galleries = g.get_galleries()
+        galleries = gallery.get_galleries()
     groups = None
     groups_error = None
     if request.method == 'POST':
@@ -331,7 +331,7 @@ def show_gallery(path):
 
     if user is not None and "access_editors" in user.get_groups():
         groups = " ".join(gallery_groups)
-    return render("gallery.html", path = g.path.decode("utf-8"), route = get_route(g.path)[1:], galleries = galleries, files = g.get_files(), groups=groups, groups_error=groups_error)
+    return render("gallery.html", path = gallery.path.decode("utf-8"), route = get_route(gallery.path)[1:], galleries = galleries, files = gallery.get_files(), groups=groups, groups_error=groups_error)
 
 @app.route('/video/<path:path>')
 @render_time
