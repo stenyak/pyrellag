@@ -11,7 +11,7 @@
     {% endfor %}
 {% endblock %}
 {% block body %}
-        {% if groups != None %}
+        {% if admin_mode %}
             <div style="margin-bottom: 5px" class='bg subgalleries'>
                 <form style="display: inline" action="" method=post>Access groups:
                     <input type=hidden name=path value="{{ path }}">

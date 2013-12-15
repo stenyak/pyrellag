@@ -109,6 +109,15 @@
 .openid:hover {
     background-color: white;
 }
+.admin_body
+{
+    background-image: linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(48,0,0) 100%, rgb(38,0,0) 50%);
+    background-image: -o-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(48,0,0) 100%, rgb(38,0,0) 50%);
+    background-image: -moz-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(48,0,0) 100%, rgb(38,0,0) 50%);
+    background-image: -webkit-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(48,0,0) 100%, rgb(38,0,0) 50%);
+    background-image: -ms-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(48,0,0) 100%, rgb(38,0,0) 50%);
+    background-image: -webkit-gradient(linear, left bottom, right top, color-stop(0.18, rgb(0,0,0)), color-stop(1, rgb(48,0,0)), color-stop(0.5, rgb(38,0,0)));
+}
 body {
     overflow-y: auto;
     overflow-x: hidden;
@@ -200,6 +209,8 @@ ul {
     padding-left: 1.1em;
 }
 a:link {color: #1F1F1F; text-decoration: none; }
+.admin_button { background: none; border: none; color: #1F1F1F; font-family: verdana,arial,sans-serif; }
+a:hover {color: #000000; text-decoration: none; }
+.admin_button:hover { cursor: pointer; color: #000000; }
 a:active {color: #0000ff; text-decoration: none; }
 a:visited {color: #1F1F1F; text-decoration: none; }
-a:hover {color: #000000; text-decoration: none; }

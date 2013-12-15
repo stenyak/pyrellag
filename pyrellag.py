@@ -128,10 +128,18 @@ def get_openid_providers():
 def is_in_group(user, group):
     return user is not None and group in user.get_groups()
 
+def is_admin_mode(user):
+    if not is_in_group(user, "administrators"):
+        return False
+    try:
+        return session["admin_mode"]
+    except KeyError:
+        return False
+
 def render(*args, **kwargs):
     global g
     user = g.user
-    return render_template(*args, debug=cfg()["debug_mode_enabled"], user=user, **kwargs)
+    return render_template(*args, debug=cfg()["debug_mode_enabled"], admin_mode=is_admin_mode(user), user=user, **kwargs)
 
 @app.route('/login', methods=['GET', 'POST'])
 @render_time
@@ -188,7 +196,7 @@ def create_profile():
 @render_time
 def edit_profiles():
     user = g.user
-    if not is_in_group(user, "administrators"):
+    if not is_admin_mode(user):
         return render('edit_profiles.html', authn_error=True)
     if request.method == 'POST':
         user = User.query.filter_by(id=request.form["id"]).first()
@@ -210,7 +218,7 @@ def edit_profiles():
 @render_time
 def edit_config():
     user = g.user
-    if not is_in_group(user, "administrators"):
+    if not is_admin_mode(user):
         return render('edit_config.html', authn_error=True)
     def get_rows(textarea):
         return len(textarea.split("\n")) * 1.2
@@ -244,6 +252,20 @@ def edit_profile():
         return render('edit_profile.html', authn_error="only logged in users can edit their profile")
     form = dict(name=user.name, email=user.email)
     if request.method == 'POST':
+        if 'enable_admin_mode' in request.form:
+            if not is_in_group(user, "administrators"):
+                return render('edit_profile.html', authn_error=True)
+            session["admin_mode"] = True
+            if "next" in request.form:
+                return redirect(request.form["next"])
+            return render('edit_profile.html', form=form)
+        if 'disable_admin_mode' in request.form:
+            if not is_admin_mode(user):
+                return render('edit_profile.html', authn_error=True)
+            session["admin_mode"] = False
+            if "next" in request.form:
+                return redirect(request.form["next"])
+            return render('edit_profile.html', form=form)
         if 'delete' in request.form:
             db_session.delete(user)
             db_session.commit()
@@ -310,20 +332,22 @@ def show_gallery(path):
     check_jailed_path(path, "data")
     gallery_groups = get_access_groups(path.encode("utf-8"))
     if not cfg()["public_access"]:
-        if not access_permitted(gallery_groups, user.get_groups()):
+        if not is_admin_mode(user) and not access_permitted(gallery_groups, user.get_groups()):
             return render("gallery.html", authn_error=True)
 
     gallery = Gallery(path, follow_freedesktop_standard = cfg()["follow_freedesktop_standard"])
     gallery.populate()
-    if not cfg()["public_access"]:
-        galleries = [gal for gal in gallery.get_galleries() if access_permitted(get_access_groups(gal["key"].encode("utf-8")), user.get_groups())]
-    else:
+    if cfg()["public_access"] or is_admin_mode(user):
         galleries = gallery.get_galleries()
+    else:
+        galleries = [gal for gal in gallery.get_galleries() if access_permitted(get_access_groups(gal["key"].encode("utf-8")), user.get_groups())]
     groups = None
     groups_error = None
     if request.method == 'POST':
         action = request.form["action"]
         if action == "save":
+            if not is_admin_mode(user):
+                return render("gallery.html", authn_error=True)
             gallery_groups = request.form["groups_string"].split()
             try:
                 set_access_groups(path.encode("utf-8"), gallery_groups)
@@ -331,8 +355,7 @@ def show_gallery(path):
                 groups_error = "%s" %ioe
         else:
             raise Exception("Unknown gallery editing action: \"%s\"" %action)
-
-    if not is_in_group(user, "administrators"):
+    if is_admin_mode(user):
         groups = " ".join(gallery_groups)
     return render("gallery.html", path = gallery.path.decode("utf-8"), route = get_route(gallery.path)[1:], galleries = galleries, files = gallery.get_files(), groups=groups, groups_error=groups_error)
 
