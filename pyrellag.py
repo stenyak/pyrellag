@@ -189,7 +189,7 @@ def create_profile():
 def edit_profiles():
     user = g.user
     if not is_in_group(user, "administrators"):
-        return render('edit_profiles.html', authn_error="only administrators can access this page.")
+        return render('edit_profiles.html', authn_error=True)
     if request.method == 'POST':
         user = User.query.filter_by(id=request.form["id"]).first()
         action = request.form["action"]
@@ -311,7 +311,7 @@ def show_gallery(path):
     gallery_groups = get_access_groups(path.encode("utf-8"))
     if not cfg()["public_access"]:
         if not access_permitted(gallery_groups, user.get_groups()):
-            return render("gallery.html", authn_error="not enough permissions to view this page")
+            return render("gallery.html", authn_error=True)
 
     gallery = Gallery(path, follow_freedesktop_standard = cfg()["follow_freedesktop_standard"])
     gallery.populate()
