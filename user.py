@@ -33,7 +33,13 @@ class UserList():
     def __init__(self):
         global db_session
         self.db_session = db_session
-    def init_db():
+    def get_by_openid(self, openid):
+        return User.query.filter_by(openid=openid).first()
+    def get_by_id(self, id):
+        return User.query.filter_by(id=id).first()
+    def get_all(self):
+        return User.query.all()
+    def init_db(self):
         global engine
         global Base
         Base.metadata.create_all(bind=engine)
@@ -53,3 +59,5 @@ class UserList():
             return True
         except:
             return False
+    def total(self):
+        return len(User.query.all())

@@ -51,7 +51,7 @@ def render_time(fn):
 def before_request():
     g.user = None
     if 'openid' in session:
-        g.user = User.query.filter_by(openid=session['openid']).first()
+        g.user = user_list.get_by_openid(session['openid'])
 
 
 @app.after_request
@@ -121,7 +121,7 @@ def login():
 def create_or_login(resp):
     """This is called when login with OpenID succeeded and it's not necessary to figure out if this is the users's first login or not.  This function has to redirect otherwise the user will be presented with a terrible URL which we certainly don't want.  """
     session['openid'] = resp.identity_url
-    user = User.query.filter_by(openid=resp.identity_url).first()
+    user = user_list.get_by_openid(resp.identity_url)
     if user is not None:
         flash(u'Successfully signed in')
         g.user = user
@@ -146,10 +146,9 @@ def create_profile():
         else:
             flash(u'Profile successfully created')
             groups_string = ""
-            if len(User.query.all()) == 0:
+            if user_list.total() == 0:
                 groups_string = "administrators"
             user_list.add(User(name, email, session['openid'], groups_string))
-            user_list.commit()
             return redirect(oid.get_next_url())
     return render('create_profile.html', next_url=oid.get_next_url())
 
@@ -160,7 +159,7 @@ def edit_profiles():
     if not is_admin_mode(user):
         return render('edit_profiles.html', authn_error=True)
     if request.method == 'POST':
-        user = User.query.filter_by(id=request.form["id"]).first()
+        user = user_list.get_by_id(request.form["id"])
         action = request.form["action"]
         if action == "save":
             user.name = request.form["name"]
@@ -172,7 +171,7 @@ def edit_profiles():
             user_list.delete(user)
         else:
             raise Exception("Unknown profile editing action: \"%s\"" %action)
-    profiles = User.query.all()
+    profiles = user_list.get_all()
     return render('edit_profiles.html', profiles=profiles)
 
 @app.route('/config', methods=['GET', 'POST'])
