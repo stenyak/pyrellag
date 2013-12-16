@@ -17,7 +17,7 @@
                             |
                             <a class="hlable" href="{{ url_for('edit_config') }}">configuration<img src="{{ url_for('show_static', path="icons/configuration.png")}}"/></a>
                         {% else %}
-                            {% if "administrators" in user.get_groups() %}
+                            {% if "administrators" in user.groups %}
                                 |
                                 <form style="display: inline" action="{{ url_for('edit_profile') }}" method=post>
                                     <input type=hidden name=next value="{{ request.url }}">
@@ -41,7 +41,7 @@
             {% endif %}
             <center>
                 <div style="margin: 0px auto">
-                    {% if user and "administrators" in user.get_groups() %}
+                    {% if user and "administrators" in user.groups %}
                         {% if admin_mode %}
                             <span class="bg" style="background-color: rgb(200,20,20)">
                                 <form style="display: inline" action="{{ url_for('edit_profile') }}" method=post>

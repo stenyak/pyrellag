@@ -1,63 +1,64 @@
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.orm import scoped_session, sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+import json
 
-
-def init_sqlalchemy():
-    db_uri = "sqlite:///" + "profile.db"
-    engine = create_engine(db_uri)
-    db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
-    base = declarative_base()
-    base.query = db_session.query_property()
-    return engine, base, db_session
-
-engine, Base, db_session = init_sqlalchemy()
-
-class User(Base):
-    __tablename__ = 'users'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(60))
-    email = Column(String(200))
-    openid = Column(String(200))
-    groups_string = Column(String(200))
-
-    def __init__(self, name, email, openid, groups_string):
-        self.name = name
-        self.email = email
-        self.openid = openid
-        self.groups_string = groups_string
-    def get_groups(self):
-        return self.groups_string.split()
+max_id = 0
 
 class UserList():
     def __init__(self):
-        global db_session
-        self.db_session = db_session
-    def get_by_openid(self, openid):
-        return User.query.filter_by(openid=openid).first()
-    def get_by_id(self, id):
-        return User.query.filter_by(id=id).first()
-    def get_all(self):
-        return User.query.all()
-    def init_db(self):
-        global engine
-        global Base
-        Base.metadata.create_all(bind=engine)
-    def close(self):
-        self.db_session.remove()
-    def commit(self):
-        self.db_session.commit()
-    def add(self, user):
-        self.db_session.add(user)
-        self.commit()
-    def delete(self, user):
-        self.db_session.delete(user)
-        self.commit()
-    def db_created(self):
+        self.users = []
         try:
-            User.query.filter_by(openid="foobar").first()
-            return True
-        except:
-            return False
+            with open("profiles.json", "r") as f:
+                data = json.loads(f.read())
+            for i in data:
+                self.add_new(i["name"], i["email"], i["openid"], i["groups"], i["id"])
+                self.check_max_id(i["id"])
+        except IOError:
+            pass # no profiles stored yet. no worries
+    def check_max_id(self, id):
+        global max_id
+        max_id = max(id, max_id)
+    def get_by_openid(self, openid):
+        for u in self.users:
+            if u["openid"] == openid:
+                return u
+        return None
+    def get_by_id(self, id):
+        assert(isinstance(id, int))
+        for u in self.users:
+            if u["id"] == id:
+                return u
+        return None
+    def get_all(self):
+        return self.users
+    def save(self):
+        self.users = sorted(self.users, key=lambda u: u["id"]) # always keep it tidy and sorted :-D
+        with open("profiles.json", "w") as f:
+            f.write(json.dumps(self.users, indent=4, sort_keys=True, separators=(",", " : ")))
+            f.flush()
+    def set(self, user):
+        self.users = [u for u in self.users if u["id"] != user["id"]]
+        assert(isinstance(user["id"], int))
+        self.add(user)
+        self.check_max_id(id)
+        self.save()
+    def add(self, user):
+        self.users.append(user)
+        self.save()
+    def add_new(self, name, email, openid, groups, id=None):
+        user = {}
+        if id is None:
+            global max_id
+            id = max_id
+            max_id += 1
+        assert(isinstance(id, int))
+        self.check_max_id(id)
+        user["id"] = id
+        user["name"] = name
+        user["email"] = email
+        user["openid"] = openid
+        user["groups"] = groups
+        self.add(user)
+    def delete(self, user):
+        self.users = [u for u in self.users if u["id"] != user["id"]]
+        self.save()
     def total(self):
-        return len(User.query.all())
+        return len(self.users)

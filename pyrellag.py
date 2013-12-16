@@ -23,16 +23,8 @@ def init_flask(name):
 app = init_flask(__name__)
 oid = init_flask_openid(app)
 
-from user import User, UserList
+from user import UserList
 user_list = UserList()
-
-def db_required(fn):
-    @wraps(fn)
-    def inner(*args, **kwargs):
-        if not user_list.db_created():
-            user_list.init_db()
-        return fn(*args, **kwargs)
-    return inner
 
 def render_time(fn):
     @wraps(fn)
@@ -47,7 +39,6 @@ def render_time(fn):
     return inner
 
 @app.before_request
-@db_required
 def before_request():
     g.user = None
     if 'openid' in session:
@@ -56,7 +47,7 @@ def before_request():
 
 @app.after_request
 def after_request(response):
-    user_list.close()
+    user_list.save()
     return response
 
 
@@ -87,7 +78,7 @@ def get_openid_providers():
     ]
 
 def is_in_group(user, group):
-    return user is not None and group in user.get_groups()
+    return user is not None and group in user["groups"]
 
 def is_admin_mode(user):
     if not is_in_group(user, "administrators"):
@@ -116,7 +107,6 @@ def login():
             return oid.try_login(openid, ask_for=['email', 'fullname', 'nickname'])
     return render('login.html', next=oid.get_next_url(), error=oid.fetch_error(), providers=get_openid_providers())
 
-@db_required
 @oid.after_login
 def create_or_login(resp):
     """This is called when login with OpenID succeeded and it's not necessary to figure out if this is the users's first login or not.  This function has to redirect otherwise the user will be presented with a terrible URL which we certainly don't want.  """
@@ -145,10 +135,10 @@ def create_profile():
             flash(u'Error: you have to enter a valid email address')
         else:
             flash(u'Profile successfully created')
-            groups_string = ""
+            groups = []
             if user_list.total() == 0:
-                groups_string = "administrators"
-            user_list.add(User(name, email, session['openid'], groups_string))
+                groups.append("administrators")
+            user_list.add_new(name, email, session['openid'], groups)
             return redirect(oid.get_next_url())
     return render('create_profile.html', next_url=oid.get_next_url())
 
@@ -159,14 +149,14 @@ def edit_profiles():
     if not is_admin_mode(user):
         return render('edit_profiles.html', authn_error=True)
     if request.method == 'POST':
-        user = user_list.get_by_id(request.form["id"])
+        user = user_list.get_by_id(int(request.form["id"]))
         action = request.form["action"]
         if action == "save":
-            user.name = request.form["name"]
-            user.email = request.form["email"]
-            user.openid = request.form["openid"]
-            user.groups_string = request.form["groups_string"]
-            user_list.commit()
+            user["name"] = request.form["name"]
+            user["email"] = request.form["email"]
+            user["openid"] = request.form["openid"]
+            user["groups"] = request.form["groups_string"].split()
+            user_list.set(user)
         elif action == "delete":
             user_list.delete(user)
         else:
@@ -210,7 +200,7 @@ def edit_profile():
     user = g.user
     if user is None:
         return render('edit_profile.html', authn_error="only logged in users can edit their profile")
-    form = dict(name=user.name, email=user.email)
+    form = dict(name=user["name"], email=user["email"])
     if request.method == 'POST':
         if 'enable_admin_mode' in request.form:
             if not is_in_group(user, "administrators"):
@@ -239,9 +229,9 @@ def edit_profile():
             flash(u'Error: you have to enter a valid email address')
         else:
             flash(u'Profile successfully created')
-            user.name = form['name']
-            user.email = form['email']
-            user_list.commit()
+            user["name"] = form['name']
+            user["email"] = form['email']
+            user_list.set(user)
             return redirect(url_for('edit_profile', user=user))
     return render('edit_profile.html', form=form)
 
@@ -289,9 +279,9 @@ def show_gallery(path):
         return render("gallery.html", authn_error="only logged in users may view this page")
     path = urllib.unquote(path).encode("utf-8")
     check_jailed_path(path, "data")
-    gallery_groups = get_access_groups(path.encode("utf-8"))
+    groups = get_access_groups(path.encode("utf-8"))
     if not cfg()["public_access"]:
-        if not is_admin_mode(user) and not access_permitted(gallery_groups, user.get_groups()):
+        if not is_admin_mode(user) and not access_permitted(groups, user["groups"]):
             return render("gallery.html", authn_error=True)
 
     gallery = Gallery(path, follow_freedesktop_standard = cfg()["follow_freedesktop_standard"])
@@ -299,23 +289,20 @@ def show_gallery(path):
     if cfg()["public_access"] or is_admin_mode(user):
         galleries = gallery.get_galleries()
     else:
-        galleries = [gal for gal in gallery.get_galleries() if access_permitted(get_access_groups(gal["key"].encode("utf-8")), user.get_groups())]
-    groups = None
+        galleries = [gal for gal in gallery.get_galleries() if access_permitted(get_access_groups(gal["key"].encode("utf-8")), user["groups"])]
     groups_error = None
     if request.method == 'POST':
         action = request.form["action"]
         if action == "save":
             if not is_admin_mode(user):
                 return render("gallery.html", authn_error=True)
-            gallery_groups = request.form["groups_string"].split()
+            groups = request.form["groups_string"].split()
             try:
-                set_access_groups(path.encode("utf-8"), gallery_groups)
+                set_access_groups(path.encode("utf-8"), groups)
             except IOError, ioe:
                 groups_error = "%s" %ioe
         else:
             raise Exception("Unknown gallery editing action: \"%s\"" %action)
-    if is_admin_mode(user):
-        groups = " ".join(gallery_groups)
     return render("gallery.html", path = gallery.path.decode("utf-8"), route = get_route(gallery.path)[1:], galleries = galleries, files = gallery.get_files(), groups=groups, groups_error=groups_error)
 
 @app.route('/video/<path:path>')

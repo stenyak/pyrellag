@@ -5,4 +5,3 @@ set -e
 pip install --user flask
 pip install --user Flask-Login
 pip install --user Flask-OpenID
-pip install --user sqlalchemy
