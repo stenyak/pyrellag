@@ -1,15 +1,15 @@
 {% extends "base.html" %}
-{% block title %}Video: {{ video_path }}{% endblock %}
+{% block title %}Video: {{ video_path.decode("utf-8") }}{% endblock %}
 {% block route %}
     {% for i in route %}
-        / <a class='hlable' href='{{ url_for('show_gallery', path=i.key|urlencode) }}'>{{ i.value }}</a>
+        / <a class='hlable' href='{{ url_for('show_gallery', path=i.key) }}'>{{ i.value.decode("utf-8") }}</a>
     {% endfor %}
-    / <a class='hlable' href="{{ url_for('show_data', path=video_path|urlencode) }}">{{ video_basename }}</a>
+    / <a class='hlable' href="{{ url_for('show_data', path=video_path) }}">{{ video_basename.decode("utf-8") }}</a>
 {% endblock %}
 {% block body %}
     <div style='text-align:center;'>
         <video controls autoplay>
-            <source src="{{ url_for('show_data', path=video_path|urlencode) }}"/>
+            <source src="{{ url_for('show_data', path=video_path) }}"/>
         </video>
     </div>
 {% endblock %}

@@ -1,6 +1,6 @@
 # Copyright (c) 2013, Bruno Gonzalez <stenyak@stenyak.com>. This software is licensed under the Affero General Public License version 3 or later.  See the LICENSE file.
 
-import sys, os, re, hashlib, shutil, PngImagePlugin, urllib
+import sys, os, re, hashlib, shutil, PngImagePlugin
 import Image as image
 from stats import Stats
 from color import Color
@@ -151,7 +151,7 @@ class Gallery:
         return result
     def get_galleries(self):
         galleries = []
-        for path in [os.path.normpath(os.path.join(self.path, path)).decode("utf-8") for path in sorted(self.gallery_paths)]:
+        for path in [os.path.normpath(os.path.join(self.path, path)) for path in sorted(self.gallery_paths)]:
             galleries.append( {"key": path, "value": os.path.basename(path)} )
         return galleries
     def get_files(self):
@@ -160,7 +160,7 @@ class Gallery:
             thumb_path = os.path.relpath(self.get_thumb_path(cur_file))
             file_path = os.path.relpath(cur_file)
             if Image.is_image(file_path):
-                files.append( {"type": "image", "file_path": file_path.decode("utf-8"), "thumb_path": thumb_path.decode("utf-8")} )
+                files.append( {"type": "image", "file_path": file_path, "thumb_path": thumb_path} )
             elif Video.is_video(file_path):
-                files.append( {"type": "video", "file_path": file_path.decode("utf-8"), "thumb_path": thumb_path.decode("utf-8")} )
+                files.append( {"type": "video", "file_path": file_path, "thumb_path": thumb_path} )
         return files

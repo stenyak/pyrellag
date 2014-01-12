@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2013, Bruno Gonzalez <stenyak@stenyak.com>. This software is licensed under the Affero General Public License version 3 or later.  See the LICENSE file.
 
-import os, urllib, time
+import os, time
 import json
 from functools import wraps
 
@@ -265,7 +265,7 @@ def get_route(path):
     temp_paths = path.split(os.sep)
     for k,v in enumerate(temp_paths):
         cur_path = temp_paths[:k+1]
-        paths.append(os.path.join(*cur_path).decode("utf-8"))
+        paths.append(os.path.join(*cur_path))
     for p in paths:
         route.append( {"key": p, "value": os.path.basename(p)} )
     return route
@@ -277,9 +277,9 @@ def show_gallery(path):
     user = g.user
     if user is None and not cfg()["public_access"]:
         return render("gallery.html", authn_error="only logged in users may view this page")
-    path = urllib.unquote(path).encode("utf-8")
+    path = path.encode("utf-8")
     check_jailed_path(path, "data")
-    groups = get_access_groups(path.encode("utf-8"))
+    groups = get_access_groups(path)
     if not cfg()["public_access"]:
         if not is_admin_mode(user) and not access_permitted(groups, user["groups"]):
             return render("gallery.html", authn_error=True)
@@ -289,7 +289,7 @@ def show_gallery(path):
     if cfg()["public_access"] or is_admin_mode(user):
         galleries = gallery.get_galleries()
     else:
-        galleries = [gal for gal in gallery.get_galleries() if access_permitted(get_access_groups(gal["key"].encode("utf-8")), user["groups"])]
+        galleries = [gal for gal in gallery.get_galleries() if access_permitted(get_access_groups(gal["key"]), user["groups"])]
     groups_error = None
     if request.method == 'POST':
         action = request.form["action"]
@@ -298,12 +298,12 @@ def show_gallery(path):
                 return render("gallery.html", authn_error=True)
             groups = request.form["groups_string"].split()
             try:
-                set_access_groups(path.encode("utf-8"), groups)
+                set_access_groups(path, groups)
             except IOError, ioe:
                 groups_error = "%s" %ioe
         else:
             raise Exception("Unknown gallery editing action: \"%s\"" %action)
-    return render("gallery.html", path = gallery.path.decode("utf-8"), route = get_route(gallery.path)[1:], galleries = galleries, files = gallery.get_files(), groups=groups, groups_error=groups_error)
+    return render("gallery.html", path = gallery.path, route = get_route(gallery.path)[1:], galleries = galleries, files = gallery.get_files(), groups=groups, groups_error=groups_error)
 
 @app.route('/video/<path:path>')
 @render_time
@@ -312,7 +312,7 @@ def show_video(path):
     user = g.user
     if user is None and not cfg()["public_access"]:
         return render("video.html", authn_error="only logged in users may view this page")
-    video_path = urllib.unquote(path).encode("utf-8")
+    video_path = path.encode("utf-8")
     path = os.path.dirname(video_path)
     check_jailed_path(path, "data")
     return render("video.html", video_path = video_path, route=get_route(video_path)[1:-1], video_basename = os.path.basename(video_path))
@@ -329,7 +329,7 @@ def show_data(path):
     user = g.user
     if user is None and not cfg()["public_access"]:
         abort(401)
-    path = urllib.unquote(path).encode("utf-8")
+    path = path.encode("utf-8")
     if os.path.basename(path) == ".access":
         abort(401)
     check_jailed_path(path, "data")
@@ -337,7 +337,7 @@ def show_data(path):
 
 @app.route('/static/<path:path>')
 def show_static(path):
-    path = os.path.join("static", urllib.unquote(path).encode("utf-8"))
+    path = os.path.join("static", path.encode("utf-8"))
     check_jailed_path(path, "static")
     return send_file(path)
 
