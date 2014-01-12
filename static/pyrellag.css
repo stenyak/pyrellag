@@ -28,14 +28,6 @@
     border-radius: 10px;
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
-
-    transition: background-color 0.5s linear;
-    -moz-transition: background-color 0.5s linear;
-    -webkit-transition: background-color 0.5s linear;
-    -ms-transition: background-color 0.5s linear;
-}
-.subgalleries:hover {
-    background-color: silver;
 }
 .hlable {
     border-radius: 5px;
