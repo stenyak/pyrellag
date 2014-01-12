@@ -2,7 +2,11 @@
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}{% endblock %}</title>
+        {% if authn_error %}
+            <title>Authorization error</title>
+        {% else %}
+            <title>{% block title %}{% endblock %}</title>
+        {% endif %}
         <link href="{{ url_for('show_static', path="pyrellag.css") }}" type="text/css" rel="stylesheet" />
         {% block extra_head %}{% endblock %}
     </head>
