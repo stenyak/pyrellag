@@ -16,21 +16,6 @@
             <div class="bg" style="float: right">
                     {% if user %}
                         <a class="hlable" href="{{ url_for('edit_profile') }}">{{ user.name }}</a>
-                        {% if admin_mode %}
-                            |
-                            <a class="hlable" href="{{ url_for('edit_profiles') }}">edit profiles<img src="{{ url_for('show_static', path="icons/edit.png")}}"/></a>
-                            |
-                            <a class="hlable" href="{{ url_for('edit_config') }}">configuration<img src="{{ url_for('show_static', path="icons/configuration.png")}}"/></a>
-                        {% else %}
-                            {% if "administrators" in user.groups %}
-                                |
-                                <form style="display: inline" action="{{ url_for('edit_profile') }}" method=post>
-                                    <input type=hidden name=next value="{{ request.url }}">
-                                    <input type=submit class="admin_button hlable" name=enable_admin_mode value="admin mode">
-                                    <input type=image class="hlable" src="{{ url_for('show_static', path="icons/bolt.png")}}" name=enable_admin_mode value="foo">
-                                </form>
-                            {% endif %}
-                        {% endif %}
                         |
                         <a  class="hlable" href="{{ url_for('logout') }}">log out<img src="{{ url_for('show_static', path="icons/logout.png")}}"/></a>
                     {% else %}
@@ -48,12 +33,23 @@
                 <div style="margin: 0px auto">
                     {% if user and "administrators" in user.groups %}
                         {% if admin_mode %}
-                            <span class="bg" style="background-color: rgb(200,20,20)">
+                            <span class="bg-admin">
                                 <form style="display: inline" action="{{ url_for('edit_profile') }}" method=post>
                                     <input type=hidden name=next value="{{ request.url }}">
-                                    admin mode enabled
-                                    <input type=image class="hlable" src="{{ url_for('show_static', path="icons/bolt.png")}}" name=disable_admin_mode value="foo">
-                                    <input type=submit name=disable_admin_mode value="click here to disable" class="admin_button hlable">
+                                    <input type=submit class="admin_button hlable" name=disable_admin_mode value="toggle admin mode">
+                                    <img src="{{ url_for('show_static', path="icons/bolt.png")}}"/>
+                                </form>
+                                |
+                                <a class="hlable" href="{{ url_for('edit_profiles') }}">edit profiles<img src="{{ url_for('show_static', path="icons/edit.png")}}"/></a>
+                                |
+                                <a class="hlable" href="{{ url_for('edit_config') }}">configuration<img src="{{ url_for('show_static', path="icons/configuration.png")}}"/></a>
+                            </span>
+                        {% else %}
+                            <span class="bg">
+                                <form style="display: inline" action="{{ url_for('edit_profile') }}" method=post>
+                                    <input type=hidden name=next value="{{ request.url }}">
+                                    <input type=submit class="admin_button hlable" name=enable_admin_mode value="toggle admin mode">
+                                    <img src="{{ url_for('show_static', path="icons/bolt.png")}}"/>
                                 </form>
                             </span>
                         {% endif %}

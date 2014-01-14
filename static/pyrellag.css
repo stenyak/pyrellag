@@ -44,6 +44,16 @@
 .hlable:hover {
     background-color: white;
 }
+.bg-admin
+{
+    background-color: rgb(200,100,100);
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+
+    padding-left: 5px;
+    padding-right: 5px;
+}
 .bg {
     background-color: grey;
     border-radius: 5px;
