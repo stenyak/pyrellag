@@ -101,14 +101,14 @@
 .openid:hover {
     background-color: white;
 }
-.admin_body
+.body-admin
 {
-    background-image: linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(48,0,0) 100%, rgb(38,0,0) 50%);
-    background-image: -o-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(48,0,0) 100%, rgb(38,0,0) 50%);
-    background-image: -moz-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(48,0,0) 100%, rgb(38,0,0) 50%);
-    background-image: -webkit-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(48,0,0) 100%, rgb(38,0,0) 50%);
-    background-image: -ms-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(48,0,0) 100%, rgb(38,0,0) 50%);
-    background-image: -webkit-gradient(linear, left bottom, right top, color-stop(0.18, rgb(0,0,0)), color-stop(1, rgb(48,0,0)), color-stop(0.5, rgb(38,0,0)));
+    background-image: linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(48,10,10) 100%, rgb(38,0,0) 50%);
+    background-image: -o-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(48,10,10) 100%, rgb(38,0,0) 50%);
+    background-image: -moz-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(48,10,10) 100%, rgb(38,0,0) 50%);
+    background-image: -webkit-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(48,10,10) 100%, rgb(38,0,0) 50%);
+    background-image: -ms-linear-gradient(left bottom, rgb(0,0,0) 18%, rgb(48,10,10) 100%, rgb(38,0,0) 50%);
+    background-image: -webkit-gradient(linear, left bottom, right top, color-stop(0.18, rgb(0,0,0)), color-stop(1, rgb(48,10,10)), color-stop(0.5, rgb(38,10,10)));
 }
 body {
     overflow-y: auto;

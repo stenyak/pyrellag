@@ -11,7 +11,7 @@
         <link href="{{ url_for('show_static', path="pyrellag.css") }}" type="text/css" rel="stylesheet" />
         {% block extra_head %}{% endblock %}
     </head>
-    <body {% if admin_mode %}class="admin_body"{% endif %}>
+    <body {% if admin_mode %}class="body-admin"{% endif %}>
         <div class='topbar'>
             <div class="bg" style="float: right">
                     {% if user %}
